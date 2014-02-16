@@ -6,4 +6,5 @@
 # OS X
 .DS_Store
 
-#Other /bin
+#Other
+/bin
