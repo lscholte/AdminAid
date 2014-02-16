@@ -34,4 +34,13 @@ public final class StringUtilities {
 		}
 		return false;
 	}
+	
+	public static String buildString(String[] args, int start) {
+		StringBuilder sb = new StringBuilder();
+		for(int i = start; i < args.length; ++i) {
+			sb.append(args[i]).append(" ");
+		}
+		String message = sb.toString().trim();
+		return message;
+	}
 }
