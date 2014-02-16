@@ -5,7 +5,9 @@ import java.io.IOException;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class FileUtilities {
+public final class FileUtilities {
+	
+	private FileUtilities() { }
 	
 	public static void createNewFile(File file) {
 		if(!file.exists()) {

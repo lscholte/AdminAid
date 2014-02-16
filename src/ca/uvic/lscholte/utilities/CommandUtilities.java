@@ -9,7 +9,9 @@ import org.bukkit.command.SimpleCommandMap;
 
 import ca.uvic.lscholte.AdminAid;
 
-public class CommandUtilities {
+public final class CommandUtilities {
+	
+	private CommandUtilities() { }
 	
 	private static Object getPrivateField(Object object, String field) throws SecurityException,
     NoSuchFieldException, IllegalArgumentException, IllegalAccessException {

@@ -7,7 +7,9 @@ import me.edge209.OnTime.DataIO;
 import me.edge209.OnTime.OnTimeAPI;
 import me.edge209.OnTime.PlayingTime;
 
-public class OnTimeUtilities {
+public final class OnTimeUtilities {
+	
+	private OnTimeUtilities() { }
 	
 	public static String splitSeconds(double seconds) {
 		int days = 0;

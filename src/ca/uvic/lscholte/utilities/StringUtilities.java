@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtilities {
+public final class StringUtilities {
+	
+	private StringUtilities() { }
 	
 	public static boolean containsIgnoreCase(String string, List<String> list) {
 		for(String s : list) {

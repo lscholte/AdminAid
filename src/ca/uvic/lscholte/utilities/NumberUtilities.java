@@ -1,6 +1,8 @@
 package ca.uvic.lscholte.utilities;
 
-public class NumberUtilities {
+public final class NumberUtilities {
+	
+	private NumberUtilities() { }
 	
 	public static boolean isDouble(String string) {
 		try {
