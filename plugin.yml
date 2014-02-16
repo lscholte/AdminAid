@@ -1,0 +1,198 @@
+name: AdminAid
+main: ca.uvic.lscholte.AdminAid
+version: 1.2.3
+author: SnipsRevival (Liam Scholte)
+description: Make server administration easier for your staff
+website: http://dev.bukkit.org/bukkit-plugins/adminaid/
+load: STARTUP
+softdepend: [OnTime]
+commands:
+  adminaid:
+    description: reload AdminAid config
+  ban:
+    description: permanently bans player
+  chatspy:
+    description: toggles chat spy on or off
+  info:
+    description: displays server information
+  kick:
+    description: kicks player
+  mail:
+    description: reads, sends, and removes mail
+  msg:
+    description: sends private message
+    aliases: [tell, t, m, whisper]
+  mute:
+    description: permanently mutes player
+  note:
+    description: reads, adds, and removes notes about players
+    aliases: reminder
+  playerinfo:
+    description: displays player information
+    aliases: pinfo
+  reply:
+    description: replies to last private message
+    aliases: r
+  rules:
+    description: displays server rules
+  staffchat:
+    description: toggles staff chat on or off
+    aliases: sc
+  teleport:
+    description: teleports player to another player or coordinates
+    aliases: [tp, tele]
+  tempban:
+    description: temporarily bans player
+    aliases: tban
+  tempmute:
+    description: temporarily mutes player
+    aliases: tmute
+  unban:
+    description: unbans player
+  unmute:
+    description: unmutes player
+  warn:
+    description: warns player
+permissions:
+  adminaid.*:
+    description: gives access to all adminaid commands and permissions
+    children:
+      adminaid.mail.*: true
+      adminaid.note.*: true
+      adminaid.teleport.*: true
+      adminaid.punish.*: true
+      adminaid.reload: true
+      adminaid.rules: true
+      adminaid.info: true
+      adminaid.staffmember: true
+      adminaid.msg: true
+      adminaid.playerinfo: true
+      adminaid.chatspy: true
+  adminaid.note.*:
+    description: gives access to all note commands and permissions
+    children:
+      adminaid.note.read: true
+      adminaid.note.read.self: true
+      adminaid.note.add: true
+      adminaid.note.remove: true
+  adminaid.mail.*:
+    description: gives access to all mail commands and permissions
+    children:
+      adminaid.mail.read: true
+      adminaid.mail.send: true
+      adminaid.mail.sendall: true
+      adminaid.mail.sendstaff: true
+      adminaid.mail.remove: true
+  adminaid.teleport.*:
+    description: gives access to all teleport commands and permissions
+    children:
+      adminaid.teleport: true
+      adminaid.teleport.others: true
+      adminaid.teleport.coordinates: true
+  adminaid.punish.*:
+    description: gives access to all punish commands and permissions
+    children:
+      adminaid.ban: true
+      adminaid.tempban: true
+      adminaid.unban: true
+      adminaid.mute: true
+      adminaid.tempmute: true
+      adminaid.unmute: true
+      adminaid.kick: true
+      adminaid.warn: true
+      adminaid.banexempt: true
+      adminaid.muteexempt: true
+      adminaid.kickexempt: true
+  adminaid.note.read:
+    description: allows sender to read  notes
+    default: op
+  adminaid.note.read.self:
+    description: allows sender to read only notes about him/herself
+    default: false
+  adminaid.note.add:
+    description: allows sender to add notes
+    default: op
+  adminaid.note.remove:
+    description: allows sender to remove notes
+    default: op
+  adminaid.mail.read:
+    description: allows sender to read messages in his/her mailbox
+    default: op
+  adminaid.mail.send:
+    description: allows sender to send a message to a player's mailbox
+    default: op
+  adminaid.mail.sendall:
+    description: allows sender to send a message to all players' mailboxes
+    default: op
+  adminaid.mail.sendstaff:
+    description: allows sender to send a message to all staff members' mailboxes
+    default: op
+  adminaid.mail.remove:
+    description: allows sender to remove a message from his/her mailbox
+    default: op
+  adminaid.reload:
+    description: allows sender to reload the configuration file
+    default: op
+  adminaid.ban:
+    description: allows sender to ban other players
+    default: op
+  adminaid.tempban:
+    description: allows sender to tempban other players
+    default: op
+  adminaid.unban:
+    description: allows sender to unban other players
+    default: op
+  adminaid.kick:
+    description: allows sender to kick other players
+    default: op
+  adminaid.mute:
+    description: allows sender to mute other players
+    default: op
+  adminaid.tempmute:
+    description: allows sender to tempmute other players
+    default: op
+  adminaid.unmute:
+    description: allows sender to unmute other players
+    default: op
+  adminaid.warn:
+    description: allows sender to warn other players
+    default: op
+  adminaid.banexempt:
+    description: prevents player from being banned or tempbanned
+    default: op
+  adminaid.muteexempt:
+    description: prevents player from being muted or tempmuted
+    default: op
+  adminaid.kickexempt:
+    description: prevents player from being kicked
+    default: op
+  adminaid.rules:
+    description: allows sender to use the /rules command
+    default: op
+  adminaid.info:
+    description: allows sender to use the /info command
+    default: op
+  adminaid.staffmember:
+    description: this permission will identify your staff members
+    default: op
+  adminaid.msg:
+    description: allows sender to use /msg and /reply
+    default: op
+  adminaid.playerinfo:
+    description: allows sender to view information about player
+    default: op
+  adminaid.teleport:
+    description: allows sender to teleport to another player
+    default: op
+  adminaid.teleport.others:
+    description: allows sender to teleport other players
+    default: op
+  adminaid.teleport.coordinates:
+    description: allows sender to teleport to coordinates
+    default: op
+  adminaid.chatspy:
+    description: allows sender to enable or disable chatspy for themselves
+    default: op
+  adminaid.chatspy.others:
+    description: allows sender to enable or disable chatspy for other players
+    default: op

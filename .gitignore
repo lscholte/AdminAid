@@ -1,0 +1,9 @@
+# Eclipse
+/.classpath
+/.project
+/.settings
+
+# OS X
+.DS_Store
+
+#Other /bin

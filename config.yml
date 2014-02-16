@@ -1,0 +1,122 @@
+# This is the configuration file for AdminAid
+# This plugin was created by SnipsRevival (Liam Scholte)
+
+# You can find a detailed documentation of how
+# to set this configuration file here:
+# http://dev.bukkit.org/bukkit-plugins/adminaid/pages/configuration-file-documentation/
+
+Version: 1.2.3
+
+EnableVersionChecker: true
+AutoUpdateConfig: true
+
+Prefix: '&e[<index>] <MM>/<dd>/<yyyy> by <player>: &f'
+
+LoginMessages:
+- '&6Welcome &c<player>&6!'
+- '&6It is currently &c<date>'
+- '&6There are currently &c<playercount> &6players online'
+- '&6Enjoy your time on the server and remember to be respectful'
+
+AlwaysNotifyMailboxMessage: false
+
+NotifyStaffNewNote: true
+
+FreezePlayersOnWarns: false
+
+FreezeTime: 10
+
+DisableCommand:
+  Ban: false
+  Tempban: false
+  Unban: false
+  Kick: false
+  Mute: false
+  Tempmute: false
+  Unmute: false
+  Warn: false
+  Info: false
+  Rules: false
+  Playerinfo: false
+  Teleport: false
+  Msg: false
+  Reply: false
+  Mail: false
+
+AutoRecordNotes:
+  Bans: true
+  Tempbans: true
+  Unbans: true
+  Kicks: true
+  Mutes: true
+  Tempmutes: true
+  Unmutes: true
+  Warns: true
+
+Broadcast:
+  Bans: true
+  Tempbans: true
+  Unbans: false
+  Kicks: true
+  Mutes: true
+  Tempmutes: true
+  Unmutes: false
+  Warns: true
+  
+Rules:
+- 'This is rule #1'
+- 'This is rule #2'
+- 'etc'
+
+Info:
+  Topic1:
+  - 'write whatever you want'
+  - 'and as many things as you want'
+  Topic2:
+  - 'also add as many topics as you want'
+  - 'and rename them to whatever you want'
+
+StaffInfo:
+  Topic1:
+  - 'the info stored here can only be seen by'
+  - 'players with the permission adminaid.staffmember'
+
+PlayerInfo:
+  ShowOnlineStatus: true
+  ShowLastLogin: true
+  ShowFirstLogin: true
+  ShowIPAddress: true
+  ShowLocation: true
+  ShowBannedStatus: true
+  ShowMutedStatus: true
+  ShowStaffMemberStatus: true
+  ShowChatSpyStatus: true
+  ShowBanExemptStatus: true
+  ShowMuteExemptStatus: true
+  ShowKickExemptStatus: true
+  ShowTotalPlayTime: true
+  ShowMonthlyPlayTime: true
+  ShowWeeklyPlayTime: true
+  ShowDailyPlayTime: true
+  ShowTotalVotes: false
+  ShowMonthlyVotes: false
+  ShowWeeklyVotes: false
+  ShowDailyVotes: false
+  ShowTotalReferrals: false
+  ShowMonthlyReferrals: false
+  ShowWeeklyReferrals: false
+  ShowDailyReferrals: false
+
+MessagesPerPage:
+  Notes: 5
+  Mail: 5
+  Rules: 5
+  Info: 5
+  
+PrivateChatColor: '&6'
+ChatSpyColor: '&6'
+StaffChatColor: '&6'
+
+BlockedCommandsWhenMuted:
+- me
+- msg
