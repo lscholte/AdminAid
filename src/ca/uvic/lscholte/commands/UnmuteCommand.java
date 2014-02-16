@@ -73,13 +73,8 @@ public class UnmuteCommand implements CommandExecutor {
 		userFile.set("TempMuteReason", null);
 		userFile.set("TempMuteEnd", null);
 		
-		StringBuilder strBuilder = new StringBuilder();			
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String prefix = new ConfigValues(plugin).getPrefix(sender);		
+		String message = StringUtilities.buildString(args, 1);
 		
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been unmuted for this reason: " + message);
 		

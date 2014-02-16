@@ -70,12 +70,8 @@ public class MsgCommand implements CommandExecutor {
 			target = targetPlayer;
 			targetName = targetPlayer.getName();
 		}
-				
-		StringBuilder strBuilder = new StringBuilder();				
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+
+		String message = StringUtilities.buildString(args, 1);
 		
 		ConfigValues config = new ConfigValues(plugin);
 		

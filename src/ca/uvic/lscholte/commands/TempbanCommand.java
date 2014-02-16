@@ -110,13 +110,8 @@ public class TempbanCommand implements CommandExecutor {
 		Date unbanDateUnformatted = new Date((long) (System.currentTimeMillis() + unbanTime*1000));
 		String unbanDate = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a z").format(unbanDateUnformatted);
 		
-		StringBuilder strBuilder = new StringBuilder();			
 		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 2; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String message = StringUtilities.buildString(args, 2);
 		
 		Bukkit.getBanList(Type.NAME).addBan(targetPlayer.getName(), message, unbanDateUnformatted, sender.getName());
 		

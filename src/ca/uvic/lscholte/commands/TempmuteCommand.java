@@ -114,13 +114,8 @@ public class TempmuteCommand implements CommandExecutor {
 		Date unmuteDateUnformatted = new Date((long) (System.currentTimeMillis() + unmuteTime*1000));
 		String unmuteDate = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a z").format(unmuteDateUnformatted);
 		
-		StringBuilder strBuilder = new StringBuilder();			
 		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 2; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String message = StringUtilities.buildString(args, 2);
 		
 		FileUtilities.createNewFile(file);
 		userFile.set("TempMuted", true);

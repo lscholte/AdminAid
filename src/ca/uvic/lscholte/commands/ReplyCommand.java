@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.ConfigValues;
 import ca.uvic.lscholte.utilities.CommandUtilities;
+import ca.uvic.lscholte.utilities.StringUtilities;
 
 public class ReplyCommand implements CommandExecutor {
 	
@@ -61,12 +62,8 @@ public class ReplyCommand implements CommandExecutor {
 		else {
 			target = Bukkit.getServer().getPlayer(targetName);
 		}
-		
-		StringBuilder strBuilder = new StringBuilder();			
-		for(int i = 0; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+
+		String message = StringUtilities.buildString(args, 0);
 
 		ConfigValues config = new ConfigValues(plugin);
 		

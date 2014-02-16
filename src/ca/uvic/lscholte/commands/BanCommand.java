@@ -75,13 +75,8 @@ public class BanCommand implements CommandExecutor {
 		
 		FileUtilities.createNewFile(file);
 		
-		StringBuilder strBuilder = new StringBuilder();			
 		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String message = StringUtilities.buildString(args, 1);
 		
 		Bukkit.getBanList(Type.NAME).addBan(targetPlayer.getName(), message, null, sender.getName());
 		

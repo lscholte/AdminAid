@@ -228,18 +228,13 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "That is an invalid playername");
 			return true;
 		}
-		
-		StringBuilder strBuilder = new StringBuilder();			
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
+				
 		OfflinePlayer targetPlayer;
 		if(Bukkit.getServer().getPlayer(args[1]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[1]);
 		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
 	
-		for(int i = 2; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String message = StringUtilities.buildString(args, 2);
 		
 		File childFile = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
 		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(childFile);
@@ -265,17 +260,12 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail sendall <message> " + ChatColor.RED + "to send message to all players");
 			return true;
 		}
-		
-		StringBuilder strBuilder = new StringBuilder();			
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
+				
 		File dir = new File(plugin.getDataFolder() + "/userdata/");
 		File[] children = dir.listFiles();
 		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();	
+		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String message = StringUtilities.buildString(args, 1);
 		
 		for(int i = 0; i < children.length; ++i) {
 			File childFile = new File(plugin.getDataFolder() + "/userdata/" + children[i].getName());
@@ -298,17 +288,12 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail sendstaff <message> " + ChatColor.RED + "to send message to all staff");
 			return true;
 		}
-		
-		StringBuilder strBuilder = new StringBuilder();			
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
+				
 		File dir = new File(plugin.getDataFolder() + "/userdata/");
 		File[] children = dir.listFiles();
-		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+
+		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String message = StringUtilities.buildString(args, 1);
 		
 		for(int i = 0; i < children.length; i++) {
 			File childFile = new File(plugin.getDataFolder() + "/userdata/" + children[i].getName());

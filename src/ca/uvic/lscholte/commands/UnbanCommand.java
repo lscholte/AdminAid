@@ -68,15 +68,9 @@ public class UnbanCommand implements CommandExecutor {
 		
 		FileUtilities.createNewFile(file);
 		
-		StringBuilder strBuilder = new StringBuilder();			
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
-		
-								
+		String prefix = new ConfigValues(plugin).getPrefix(sender);		
+		String message = StringUtilities.buildString(args, 1);
+							
 		Bukkit.getBanList(Type.NAME).pardon(targetPlayer.getName());
 		userFile.set("PermaBanned", null);
 		userFile.set("PermaBanReason", null);

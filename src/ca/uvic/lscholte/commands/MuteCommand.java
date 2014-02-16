@@ -76,13 +76,8 @@ public class MuteCommand implements CommandExecutor {
 		FileUtilities.createNewFile(file);
 		userFile.set("PermaMuted", true);
 		
-		StringBuilder strBuilder = new StringBuilder();			
 		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String message = StringUtilities.buildString(args, 1);
 		
 		userFile.set("PermaMuteReason", "muted for this reason: " + message);
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been muted for this reason: " + message);

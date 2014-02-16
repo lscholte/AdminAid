@@ -78,13 +78,8 @@ public class NoteCommand implements CommandExecutor {
 		if(Bukkit.getServer().getPlayer(args[1]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[1]);
 		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
 		
-		StringBuilder strBuilder = new StringBuilder();			
 		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 2; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String message = StringUtilities.buildString(args, 2);
 		
 		File file = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
 		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);

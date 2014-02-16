@@ -67,13 +67,9 @@ public class WarnCommand implements CommandExecutor {
 		List<String> noteList = userFile.getStringList("Notes");
 		List<String> mailListNew = userFile.getStringList("NewMail");
 		
-		StringBuilder strBuilder = new StringBuilder();			
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = new ConfigValues(plugin).getPrefix(sender);		
+		String message = StringUtilities.buildString(args, 1);
 		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been warned for this reason: " + message);
 		FileUtilities.createNewFile(file);
 		

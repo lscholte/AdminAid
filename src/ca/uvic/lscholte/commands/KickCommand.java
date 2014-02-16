@@ -18,6 +18,7 @@ import ca.uvic.lscholte.ConfigValues;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
+import ca.uvic.lscholte.utilities.StringUtilities;
 
 public class KickCommand implements CommandExecutor {
 	
@@ -68,13 +69,8 @@ public class KickCommand implements CommandExecutor {
 		
 		FileUtilities.createNewFile(file);
 		
-		StringBuilder strBuilder = new StringBuilder();			
 		String prefix = new ConfigValues(plugin).getPrefix(sender);
-		
-		for(int i = 1; i < args.length; ++i) {
-			strBuilder.append(args[i] + " ");
-		}
-		String message = strBuilder.toString().trim();
+		String message = StringUtilities.buildString(args, 1);
 		
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been kicked for this reason: " + message);
 		targetPlayer.kickPlayer("You were kicked for this reason: " + message);
