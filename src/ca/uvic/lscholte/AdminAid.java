@@ -30,7 +30,6 @@ public final class AdminAid extends JavaPlugin {
 	public void onEnable() {
 		
 		onTime = Bukkit.getPluginManager().getPlugin("OnTime");
-		Bukkit.getPlayer("Name");
 		plugin = this;
 		
 		lastSender = new HashMap<String, String>();
