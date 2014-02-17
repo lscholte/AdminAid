@@ -1,6 +1,7 @@
 package ca.uvic.lscholte.listeners;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.BanList.Type;
@@ -19,7 +20,6 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.LoginRunnables;
 import ca.uvic.lscholte.MiscUtilities;
-import ca.uvic.lscholte.LoginRunnables.*;
 import ca.uvic.lscholte.utilities.FileUtilities;
 
 public class PlayerListener implements Listener {
@@ -44,17 +44,14 @@ public class PlayerListener implements Listener {
 		List<String> mailListRead = userFile.getStringList("ReadMail");
 		String ipAddress = player.getAddress().getAddress().getHostAddress();
 		
-		LoginRunnables runnables = new LoginRunnables();
-		UpdaterRunnable updaterRunnable = runnables.new UpdaterRunnable(plugin, player);
-		LoginMessagesRunnable loginMessagesRunnable = runnables.new LoginMessagesRunnable(plugin, player);
-		MailRunnable mailRunnable = runnables.new MailRunnable(plugin, player);
+		List<Runnable> runnables = new ArrayList<Runnable>();
+		runnables.add(new LoginRunnables().new LoginMessagesRunnable(plugin, player));
+		runnables.add(new LoginRunnables().new UpdaterRunnable(plugin, player));
+		runnables.add(new LoginRunnables().new MailRunnable(plugin, player));
 		
-		/* Sends player login messages from config */
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, loginMessagesRunnable);
-		
-		/* Notifies ops if there is a newer version of AdminAid
-		 * as long as EnableVersionChecker is set to true in config */
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, updaterRunnable);
+		for(Runnable r : runnables) {
+			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, r);
+		}
 		
 		/* Sets various statuses for the player in their userdata file */
 		if(player.hasPermission("adminaid.banexempt")) userFile.set("BanExempt", true);
@@ -70,9 +67,6 @@ public class PlayerListener implements Listener {
 		userFile.set("NewMail", mailListNew);
 		userFile.set("ReadMail", mailListRead);
 		FileUtilities.saveYamlFile(userFile, file);
-		
-		/* Notifies player if they have mail */
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, mailRunnable);
 	}
 	
 	@EventHandler
