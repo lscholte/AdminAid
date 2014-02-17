@@ -54,14 +54,10 @@ public class PlayerListener implements Listener {
 		}
 		
 		/* Sets various statuses for the player in their userdata file */
-		if(player.hasPermission("adminaid.banexempt")) userFile.set("BanExempt", true);
-		if(player.hasPermission("adminaid.muteexempt")) userFile.set("MuteExempt", true);
-		if(player.hasPermission("adminaid.kickexempt")) userFile.set("KickExempt", true);
-		if(player.hasPermission("adminaid.staffmember")) userFile.set("StaffMember", true);
-		if(!player.hasPermission("adminaid.banexempt")) userFile.set("BanExempt", false);
-		if(!player.hasPermission("adminaid.muteexempt")) userFile.set("MuteExempt", false);
-		if(!player.hasPermission("adminaid.kickexempt")) userFile.set("KickExempt", false);
-		if(!player.hasPermission("adminaid.staffmember")) userFile.set("StaffMember", false);
+		userFile.set("BanExempt", player.hasPermission("adminaid.banexempt"));
+		userFile.set("MuteExempt", player.hasPermission("adminaid.muteexempt"));
+		userFile.set("KickExempt", player.hasPermission("adminaid.kickexempt"));
+		userFile.set("StaffMember", player.hasPermission("adminaid.staffmember"));
 		if(userFile.get("ChatSpy") == null) userFile.set("ChatSpy", false);
 		userFile.set("IPAddress", ipAddress);
 		userFile.set("NewMail", mailListNew);
@@ -87,14 +83,10 @@ public class PlayerListener implements Listener {
 		String world = loc.getWorld().getName();
 	
 		/* Sets various statuses for the player in their userdata file */
-		if(player.hasPermission("adminaid.banexempt")) userFile.set("BanExempt", true);
-		if(player.hasPermission("adminaid.muteexempt")) userFile.set("MuteExempt", true);
-		if(player.hasPermission("adminaid.kickexempt")) userFile.set("KickExempt", true);
-		if(player.hasPermission("adminaid.staffmember")) userFile.set("StaffMember", true);
-		if(!player.hasPermission("adminaid.banexempt")) userFile.set("BanExempt", false);
-		if(!player.hasPermission("adminaid.muteexempt")) userFile.set("MuteExempt", false);
-		if(!player.hasPermission("adminaid.kickexempt")) userFile.set("KickExempt", false);
-		if(!player.hasPermission("adminaid.staffmember")) userFile.set("StaffMember", false);
+		userFile.set("BanExempt", player.hasPermission("adminaid.banexempt"));
+		userFile.set("MuteExempt", player.hasPermission("adminaid.muteexempt"));
+		userFile.set("KickExempt", player.hasPermission("adminaid.kickexempt"));
+		userFile.set("StaffMember", player.hasPermission("adminaid.staffmember"));
 		if(userFile.get("ChatSpy") == null) userFile.set("ChatSpy", false);
 		userFile.set("IPAddress", ipAddress);
 		userFile.set("Location.X", xCoord);
@@ -107,7 +99,7 @@ public class PlayerListener implements Listener {
 		
 		/* Removes player from a private message conversation
 		 * as player is no longer online */
-		while(AdminAid.lastSender.values().remove(player.getName())) {}
+		while(AdminAid.lastSender.values().remove(player.getName())) { }
 		if(AdminAid.staffChat.contains(player.getName())) {
 			AdminAid.staffChat.remove(player.getName());
 		}
