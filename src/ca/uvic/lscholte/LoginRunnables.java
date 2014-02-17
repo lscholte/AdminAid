@@ -11,7 +11,7 @@ import ca.uvic.lscholte.Updater.VersionCheckException;
 
 public class LoginRunnables {
 	
-	public class MailRunnable implements Runnable {
+	public static class MailRunnable implements Runnable {
 
 		private AdminAid plugin;
 		private Player player;
@@ -47,7 +47,7 @@ public class LoginRunnables {
 		}	
 	}
 	
-	public class LoginMessagesRunnable implements Runnable {
+	public static class LoginMessagesRunnable implements Runnable {
 		
 		private AdminAid plugin;
 		private Player player;
@@ -65,7 +65,7 @@ public class LoginRunnables {
 		}
 	}
 	
-	public class UpdaterRunnable implements Runnable {
+	public static class UpdaterRunnable implements Runnable {
 		
 		private AdminAid plugin;
 		private Player player;
