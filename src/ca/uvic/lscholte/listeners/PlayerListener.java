@@ -45,9 +45,9 @@ public class PlayerListener implements Listener {
 		String ipAddress = player.getAddress().getAddress().getHostAddress();
 		
 		List<Runnable> runnables = new ArrayList<Runnable>();
-		runnables.add(new LoginRunnables().new LoginMessagesRunnable(plugin, player));
-		runnables.add(new LoginRunnables().new UpdaterRunnable(plugin, player));
-		runnables.add(new LoginRunnables().new MailRunnable(plugin, player));
+		runnables.add(new LoginRunnables.LoginMessagesRunnable(plugin, player));
+		runnables.add(new LoginRunnables.UpdaterRunnable(plugin, player));
+		runnables.add(new LoginRunnables.MailRunnable(plugin, player));
 		
 		for(Runnable r : runnables) {
 			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, r);
