@@ -87,31 +87,25 @@ public class Updater {
 			
 			JSONArray array = (JSONArray) JSONValue.parse(response);
 			
-			if(array.size() > 0) {
-				JSONObject latest = (JSONObject) array.get(array.size() - 1);
-				versionName = (String) latest.get(API_NAME_VALUE); //ex. AdminAid V1.2.2
-				
-				String[] updateVersion = versionName.replaceAll("[a-zA-Z ]", "").split("\\.");
-				int updateMajorRelease = Integer.parseInt(updateVersion[0]);
-				int updateMinorRelease = Integer.parseInt(updateVersion[1]);
-				int updateBuild = Integer.parseInt(updateVersion[2]);
-		
-				PluginDescriptionFile pdf = plugin.getDescription();
-				String[] currentVersion = pdf.getVersion().split("\\.");
-				int currentMajorRelease = Integer.parseInt(currentVersion[0]);
-				int currentMinorRelease = Integer.parseInt(currentVersion[1]);
-				int currentBuild = Integer.parseInt(currentVersion[2]);
-				
-				if(updateMajorRelease > currentMajorRelease) return false;
-				else {
-					if((updateMinorRelease > currentMinorRelease) && updateMajorRelease == currentMajorRelease) return false;
-					else {
-						if((updateBuild > currentBuild) && updateMinorRelease == currentMinorRelease) return false;
-						else return true;
-					}
-				}
-			}
-			else return false;
+			if(array.size() <= 0) return false;
+			JSONObject latest = (JSONObject) array.get(array.size() - 1);
+			versionName = (String) latest.get(API_NAME_VALUE);
+			
+			String[] updateVersion = versionName.replaceAll("[a-zA-Z ]", "").split("\\.");
+			int updateMajorRelease = Integer.parseInt(updateVersion[0]);
+			int updateMinorRelease = Integer.parseInt(updateVersion[1]);
+			int updateBuild = Integer.parseInt(updateVersion[2]);
+	
+			PluginDescriptionFile pdf = plugin.getDescription();
+			String[] currentVersion = pdf.getVersion().split("\\.");
+			int currentMajorRelease = Integer.parseInt(currentVersion[0]);
+			int currentMinorRelease = Integer.parseInt(currentVersion[1]);
+			int currentBuild = Integer.parseInt(currentVersion[2]);
+			
+			if(updateMajorRelease > currentMajorRelease) return false;
+			if((updateMinorRelease > currentMinorRelease) && updateMajorRelease == currentMajorRelease) return false;
+			if((updateBuild > currentBuild) && updateMinorRelease == currentMinorRelease) return false;
+			return true;
 		}
 		catch(IOException e) {
 			throw new VersionCheckException();
