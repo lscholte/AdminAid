@@ -25,7 +25,7 @@ public final class AdminAid extends JavaPlugin {
 	
 	/* TODO: try using final?
 	/* TODO: fix any other possible inefficiencies */
-				
+			
 	@Override
 	public void onEnable() {
 		
@@ -38,9 +38,14 @@ public final class AdminAid extends JavaPlugin {
 				
 		saveDefaultConfig();
 		
-		Updater updater = new Updater(this);
-		updater.performVersionCheck();
+		final Updater updater = new Updater(this);
 		updater.updateConfig();
+		this.getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+			public void run() {
+				updater.performVersionCheck();
+			}
+		});
+		
 		
 		File userDataDir = new File(getDataFolder() + "/userdata/");
 		FileUtilities.createNewDir(userDataDir);

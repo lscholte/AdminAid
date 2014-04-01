@@ -46,11 +46,12 @@ public class PlayerListener implements Listener {
 		
 		List<Runnable> runnables = new ArrayList<Runnable>();
 		runnables.add(new LoginRunnables.LoginMessagesRunnable(plugin, player));
-		runnables.add(new LoginRunnables.UpdaterRunnable(plugin, player));
 		runnables.add(new LoginRunnables.MailRunnable(plugin, player));
 		
+		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new LoginRunnables.UpdaterRunnable(plugin, player));
+		
 		for(Runnable r : runnables) {
-			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, r);
+			plugin.getServer().getScheduler().runTask(plugin, r);
 		}
 		
 		/* Sets various statuses for the player in their userdata file */
