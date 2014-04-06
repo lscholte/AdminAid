@@ -31,9 +31,6 @@ public class Updater {
 		plugin = instance;
 	}
 
-	@SuppressWarnings("serial")
-	public class VersionCheckException extends Exception {}
-
 	public void updateConfig() {
 
 		String currentVersion = plugin.getDescription().getVersion();
@@ -70,23 +67,15 @@ public class Updater {
 	}
 
 	public boolean isLatest() throws VersionCheckException {		
-		URL url = null;
 		try {
-			url = new URL(API_HOST + API_QUERY + PROJECT_ID);
-		}
-		catch(MalformedURLException e) {
-			throw new VersionCheckException();
-		}
-		try {
+			URL url = new URL(API_HOST + API_QUERY + PROJECT_ID);
 			URLConnection con = url.openConnection();
-
 			con.addRequestProperty("User-Agent", "AdminAid (by SnipsRevival)");
 
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String response = reader.readLine();
 
 			JSONArray array = (JSONArray) JSONValue.parse(response);
-
 			if(array.size() <= 0) return false;
 			JSONObject latest = (JSONObject) array.get(array.size() - 1);
 			versionName = (String) latest.get(API_NAME_VALUE);
@@ -107,29 +96,35 @@ public class Updater {
 			if((updateBuild > currentBuild) && updateMinorRelease == currentMinorRelease) return false;
 			return true;
 		}
+		catch(MalformedURLException e) {
+			throw new VersionCheckException();
+		}
 		catch(IOException e) {
 			throw new VersionCheckException();
 		}
 	}
 
 	public void performVersionCheck() {
-		if(plugin.getConfig().getBoolean("EnableVersionChecker") == true) {
-			plugin.getLogger().info("Checking for newer versions...");
-			try {
-				if(!isLatest()) {
-					plugin.getLogger().warning(getVersionName() + " is available for download!");
-				}
-				else {
-					plugin.getLogger().info("You have the latest version of AdminAid!");
-				}
+		if(plugin.getConfig().getBoolean("EnableVersionChecker") == false) return;
+		
+		plugin.getLogger().info("Checking for newer versions...");
+		try {
+			if(!isLatest()) {
+				plugin.getLogger().warning(getVersionName() + " is available for download!");
 			}
-			catch(VersionCheckException e) {
-				plugin.getLogger().warning("Something is wrong with the version checker. This can probably be ignored");
+			else {
+				plugin.getLogger().info("You have the latest version of AdminAid!");
 			}
+		}
+		catch(VersionCheckException e) {
+			plugin.getLogger().warning("Something is wrong with the version checker. This can probably be ignored");
 		}
 	}
 
 	public String getVersionName() {
 		return versionName;
 	}
+	
+	@SuppressWarnings("serial")
+	public class VersionCheckException extends Exception { }
 }
