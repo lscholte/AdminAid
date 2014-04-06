@@ -63,4 +63,10 @@ public final class FileUtilities {
 			e.printStackTrace();
 		}
 	}
+	
+	public static String removeFileExtension(String filename) {
+		int pos = filename.lastIndexOf(".");
+		String name = pos != -1 ? filename.substring(0, pos) : filename;
+		return name;
+	}
 }
