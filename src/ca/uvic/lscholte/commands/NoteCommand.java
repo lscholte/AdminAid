@@ -112,13 +112,10 @@ public class NoteCommand implements CommandExecutor {
 				File childFile = new File(plugin.getDataFolder() + "/userdata/" + f.getName());
 				YamlConfiguration childUserFile = YamlConfiguration.loadConfiguration(childFile);
 				List<String> noteList = childUserFile.getStringList("Notes");
-				String fileListWithExt = childFile.getName();
-				int pos = fileListWithExt.lastIndexOf(".");
-				if(pos != -1) {
-					String fileList = fileListWithExt.substring(0, pos);
-					if(childUserFile.contains("Notes") && noteList.size() != 0) {
-						inputList.add(fileList);
-					}
+				
+				String name = FileUtilities.removeFileExtension(childFile.getName());
+				if(childUserFile.contains("Notes") && noteList.size() != 0) {
+					inputList.add(name);
 				}
 			}
 			double configNumber = config.getNotesPerPage();
