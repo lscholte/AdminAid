@@ -1,6 +1,6 @@
 name: AdminAid
 main: ca.uvic.lscholte.AdminAid
-version: 1.2.3
+version: 1.2.4
 author: SnipsRevival (Liam Scholte)
 description: Make server administration easier for your staff
 website: http://dev.bukkit.org/bukkit-plugins/adminaid/
