@@ -2,8 +2,11 @@ package ca.uvic.lscholte.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import ca.uvic.lscholte.AdminAid;
 
 /**
  * A utility class containing commonly used
@@ -55,13 +58,28 @@ public final class FileUtilities {
 	 * @param yamlConfig The YamlConfiguration to save
 	 * @param file The File to save the YamlConfiguration to
 	 */
-	public static void saveYamlFile(YamlConfiguration yamlConfig, File file) {
+	public static void saveYamlFile(YamlConfiguration yamlConfig, File file) { //TODO: Change signature
 		try {
 			yamlConfig.save(file);
 		}
 		catch(IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void saveYamlConfiguration(AdminAid plugin, YamlConfiguration config, UUID uuid) {
+		try {
+			File file = new File(plugin.getDataFolder() + "/userdata/" + uuid + ".yml");
+			config.save(file);
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static YamlConfiguration loadYamlConfiguration(AdminAid plugin, UUID uuid) {
+		File file = new File(plugin.getDataFolder() + "/userdata/" + uuid + ".yml");
+		return YamlConfiguration.loadConfiguration(file);
 	}
 	
 	public static String removeFileExtension(String filename) {
