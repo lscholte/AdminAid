@@ -49,17 +49,15 @@ public class LoginRunnables {
 	
 	public static class LoginMessagesRunnable implements Runnable {
 		
-		private AdminAid plugin;
 		private Player player;
 		
-		public LoginMessagesRunnable(AdminAid instance, Player p) {
-			plugin = instance;
+		public LoginMessagesRunnable(Player p) {
 			player = p;
 		}
 		
 		@Override
 		public void run() {
-			for(String line : new ConfigValues(plugin).getLoginMessages(player)) {
+			for(String line : ConfigConstants.getLoginMessages(player)) {
 				player.sendMessage(line);
 			}
 		}
