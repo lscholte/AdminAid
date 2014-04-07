@@ -14,7 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.StringUtilities;
 
@@ -73,11 +73,11 @@ public class MsgCommand implements CommandExecutor {
 
 		String message = StringUtilities.buildString(args, 1);
 		
-		ConfigValues config = new ConfigValues(plugin);
+		//ConfigValues config = new ConfigValues(plugin);
 		
-		String spyPrefix = ChatColor.translateAlternateColorCodes('&', config.getChatSpyColor() + "[" + senderName + " to " + targetName + "] ") + ChatColor.WHITE;
-		String targetPrefix = ChatColor.translateAlternateColorCodes('&', config.getPrivateMessageColor() + "[" + senderName + " to You] ") + ChatColor.WHITE;
-		String senderPrefix = ChatColor.translateAlternateColorCodes('&', config.getPrivateMessageColor() + "[You to " + targetName + "] ") + ChatColor.WHITE;
+		String spyPrefix = ChatColor.translateAlternateColorCodes('&', ConfigConstants.CHAT_SPY_COLOR + "[" + senderName + " to " + targetName + "] ") + ChatColor.WHITE;
+		String targetPrefix = ChatColor.translateAlternateColorCodes('&', ConfigConstants.PRIVATE_CHAT_COLOR + "[" + senderName + " to You] ") + ChatColor.WHITE;
+		String senderPrefix = ChatColor.translateAlternateColorCodes('&', ConfigConstants.PRIVATE_CHAT_COLOR + "[You to " + targetName + "] ") + ChatColor.WHITE;
 		target.sendMessage(targetPrefix + message);
 		sender.sendMessage(senderPrefix + message);
 		

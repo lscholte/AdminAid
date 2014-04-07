@@ -14,7 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -24,7 +24,7 @@ public class KickCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public KickCommand(AdminAid instance) {
 		plugin = instance;
@@ -39,7 +39,7 @@ public class KickCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 		
 		if(!sender.hasPermission("adminaid.kick")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -69,17 +69,17 @@ public class KickCommand implements CommandExecutor {
 		
 		FileUtilities.createNewFile(file);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been kicked for this reason: " + message);
 		targetPlayer.kickPlayer("You were kicked for this reason: " + message);
 		
-		if(config.broadcastKicks() == true) {
+		if(ConfigConstants.BROADCAST_KICKS == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been kicked for this reason: " + message);
 		}
 
-		if(config.autoRecordKicks() == true) {
+		if(ConfigConstants.AUTO_RECORD_KICKS == true) {
 			noteList.add(prefix + "has been kicked for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been kicked for this reason: " + message);
 			userFile.set("Notes", noteList);

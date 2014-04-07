@@ -14,7 +14,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -24,7 +24,7 @@ public class MuteCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public MuteCommand(AdminAid instance) {
 		plugin = instance;
@@ -39,7 +39,7 @@ public class MuteCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.mute")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -76,17 +76,17 @@ public class MuteCommand implements CommandExecutor {
 		FileUtilities.createNewFile(file);
 		userFile.set("PermaMuted", true);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
 		userFile.set("PermaMuteReason", "muted for this reason: " + message);
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been muted for this reason: " + message);
 		
-		if(config.broadcastMutes() == true) {
+		if(ConfigConstants.BROADCAST_MUTES == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been muted for this reason: " + message);
 		}
 		
-		if(config.autoRecordMutes() == true) {
+		if(ConfigConstants.AUTO_RECORD_MUTES == true) {
 			noteList.add(prefix + "has been muted for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been muted for this reason: " + message);
 			userFile.set("Notes", noteList);

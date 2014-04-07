@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 
@@ -17,7 +17,7 @@ public class RulesCommand implements CommandExecutor {
 		
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public RulesCommand(AdminAid instance) {
 		plugin = instance;
@@ -32,7 +32,7 @@ public class RulesCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.rules")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -44,7 +44,7 @@ public class RulesCommand implements CommandExecutor {
 			return true;
 		}
 		List<String> inputList = plugin.getConfig().getStringList("Rules");
-		double configNumber = config.getRulesPerPage();
+		double configNumber = ConfigConstants.RULES_PER_PAGE;
 		List<String> outputList;
 		int totalPages = misc.getTotalPages(inputList, configNumber);
 		int page;

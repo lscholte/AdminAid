@@ -16,7 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.OnTimeUtilities;
@@ -73,9 +73,9 @@ public class PlayerinfoCommand implements CommandExecutor {
 		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a z");
-		ConfigValues config = new ConfigValues(plugin);
+		//ConfigValues config = new ConfigValues(plugin);
 		
-		if(config.showOnlineStatus() == true) {
+		if(ConfigConstants.SHOW_ONLINE_STATUS == true) {
 			if(Bukkit.getServer().getPlayer(args[0]) != null) {
 				sender.sendMessage(ChatColor.YELLOW + "Online: " + ChatColor.WHITE + "yes");
 			}
@@ -84,24 +84,24 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showLastLogin() == true) {
+		if(ConfigConstants.SHOW_LAST_LOGIN == true) {
 			if(Bukkit.getServer().getPlayer(args[0]) == null) {
 				String date = sdf.format(new Date(targetPlayer.getLastPlayed()));
 				sender.sendMessage(ChatColor.YELLOW + "Last Seen: " + ChatColor.WHITE + date);
 			}	
 		}
 		
-		if(config.showFirstLogin() == true) {
+		if(ConfigConstants.SHOW_FIRST_LOGIN == true) {
 			String date = sdf.format(new Date(targetPlayer.getFirstPlayed()));
 			sender.sendMessage(ChatColor.YELLOW + "First Seen: " + ChatColor.WHITE + date);
 		}
 		
-		if(config.showIpAddress() == true) {
+		if(ConfigConstants.SHOW_IP_ADDRESS == true) {
 			sender.sendMessage(ChatColor.YELLOW + "IP Address: " 
 					+ ChatColor.WHITE + userFile.getString("IPAddress", "unknown"));
 		}
 		
-		if(config.showLocation() == true) {
+		if(ConfigConstants.SHOW_LOCATION == true) {
 			if(Bukkit.getServer().getPlayer(args[0]) != null) {
 				Player player = Bukkit.getServer().getPlayer(args[0]);
 				Location loc = player.getLocation();
@@ -128,7 +128,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showBannedStatus() == true) {
+		if(ConfigConstants.SHOW_BANNED_STATUS == true) {
 			if(misc.isPermaBanned(targetPlayer)) {
 				String defaultMessage = "permanently banned from this server";
 				sender.sendMessage(ChatColor.YELLOW + "Banned: " 
@@ -141,7 +141,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showMutedStatus() == true) {
+		if(ConfigConstants.SHOW_MUTED_STATUS == true) {
 			if(misc.isPermaMuted(targetPlayer)) {
 				String defaultMessage = "permanently muted";
 				sender.sendMessage(ChatColor.YELLOW + "Muted: " 
@@ -154,7 +154,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showStaffMemberStatus() == true) {
+		if(ConfigConstants.SHOW_STAFF_MEMBER_STATUS == true) {
 			if(userFile.getBoolean("StaffMember") == true) {
 				sender.sendMessage(ChatColor.YELLOW + "Staff Member: " + ChatColor.WHITE + "yes");
 			}
@@ -163,7 +163,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showChatSpyStatus() == true) {
+		if(ConfigConstants.SHOW_CHAT_SPY_STATUS == true) {
 			if(userFile.getBoolean("ChatSpy") == true) {
 				sender.sendMessage(ChatColor.YELLOW + "ChatSpy Enabled: " + ChatColor.WHITE + "yes");
 			}
@@ -172,7 +172,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showBanExemptStatus() == true) {
+		if(ConfigConstants.SHOW_BAN_EXEMPT_STATUS == true) {
 			if(userFile.getBoolean("BanExempt") == true) {
 				sender.sendMessage(ChatColor.YELLOW + "Ban Exempt: " + ChatColor.WHITE + "yes");
 			}
@@ -181,7 +181,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showMuteExemptStatus() == true) {
+		if(ConfigConstants.SHOW_MUTE_EXEMPT_STATUS == true) {
 			if(userFile.getBoolean("MuteExempt") == true) {
 				sender.sendMessage(ChatColor.YELLOW + "Mute Exempt: " + ChatColor.WHITE + "yes");
 			}
@@ -190,7 +190,7 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(config.showKickExemptStatus() == true) {
+		if(ConfigConstants.SHOW_KICK_EXEMPT_STATUS == true) {
 			if(userFile.getBoolean("KickExempt") == true) {
 				sender.sendMessage(ChatColor.YELLOW + "Kick Exempt: " + ChatColor.WHITE + "yes");
 			}
@@ -199,54 +199,54 @@ public class PlayerinfoCommand implements CommandExecutor {
 			}
 		}
 		
-		if(AdminAid.onTime != null) {
+		if(AdminAid.getOnTime() != null) {
 			if(OnTimeUtilities.hasOnTimeRecord(targetPlayer.getName())) {
-				if(config.showTotalPlayTime() == true) {
+				if(ConfigConstants.SHOW_TOTAL_PLAY_TIME == true) {
 					String time = OnTimeUtilities.getTotalPlayTime(targetPlayer.getName());
 					sender.sendMessage(ChatColor.YELLOW + "Total Play Time: " + ChatColor.WHITE + time);
 				}
-				if(config.showMonthlyPlayTime() == true) {
+				if(ConfigConstants.SHOW_MONTHLY_PLAY_TIME == true) {
 					String time = OnTimeUtilities.getMonthlyPlayTime(targetPlayer.getName());
 					sender.sendMessage(ChatColor.YELLOW + "Monthly Play Time: " + ChatColor.WHITE + time);
 				}
-				if(config.showWeeklyPlayTime() == true) {
+				if(ConfigConstants.SHOW_WEEKLY_PLAY_TIME == true) {
 					String time = OnTimeUtilities.getWeeklyPlayTime(targetPlayer.getName());
 					sender.sendMessage(ChatColor.YELLOW + "Weekly Play Time: " + ChatColor.WHITE + time);
 				}
-				if(config.showDailyPlayTime() == true) {
+				if(ConfigConstants.SHOW_DAILY_PLAY_TIME == true) {
 					String time = OnTimeUtilities.getDailyPlayTime(targetPlayer.getName());
 					sender.sendMessage(ChatColor.YELLOW + "Daily Play Time: " + ChatColor.WHITE + time);
 				}
 				try {
-					if(config.showTotalVotes() == true) {
+					if(ConfigConstants.SHOW_TOTAL_VOTES == true) {
 						String votes = OnTimeUtilities.getTotalVotes(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Total Votes: " + ChatColor.WHITE + votes);
 					}
-					if(config.showMonthlyVotes() == true) {
+					if(ConfigConstants.SHOW_MONTHLY_VOTES == true) {
 						String votes = OnTimeUtilities.getMonthlyVotes(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Monthly Votes: " + ChatColor.WHITE + votes);
 					}
-					if(config.showWeeklyVotes() == true) {
+					if(ConfigConstants.SHOW_WEEKLY_VOTES == true) {
 						String votes = OnTimeUtilities.getWeeklyVotes(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Weekly Votes: " + ChatColor.WHITE + votes);
 					}
-					if(config.showDailyVotes() == true) {
+					if(ConfigConstants.SHOW_DAILY_VOTES == true) {
 						String votes = OnTimeUtilities.getDailyVotes(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Daily Votes: " + ChatColor.WHITE + votes);
 					}
-					if(config.showTotalReferrals() == true) {
+					if(ConfigConstants.SHOW_TOTAL_REFERRALS == true) {
 						String referrals = OnTimeUtilities.getTotalReferrals(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Total Referrals: " + ChatColor.WHITE + referrals);
 					}
-					if(config.showMonthlyReferrals() == true) {
+					if(ConfigConstants.SHOW_MONTHLY_REFERRALS == true) {
 						String referrals = OnTimeUtilities.getMonthlyReferrals(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Monthly Referrals: " + ChatColor.WHITE + referrals);
 					}
-					if(config.showWeeklyReferrals() == true) {
+					if(ConfigConstants.SHOW_WEEKLY_REFERRALS == true) {
 						String referrals = OnTimeUtilities.getWeeklyReferrals(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Weekly Referrals: " + ChatColor.WHITE + referrals);
 					}
-					if(config.showDailyReferrals() == true) {
+					if(ConfigConstants.SHOW_DAILY_REFERRALS == true) {
 						String referrals = OnTimeUtilities.getDailyReferrals(targetPlayer.getName());
 						sender.sendMessage(ChatColor.YELLOW + "Daily Referrals: " + ChatColor.WHITE + referrals);
 					}

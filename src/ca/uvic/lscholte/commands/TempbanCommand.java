@@ -19,7 +19,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -30,7 +30,7 @@ public class TempbanCommand implements CommandExecutor {
 
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public TempbanCommand(AdminAid instance) {
 		plugin = instance;
@@ -45,7 +45,7 @@ public class TempbanCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {		
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.tempban")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -110,7 +110,7 @@ public class TempbanCommand implements CommandExecutor {
 		Date unbanDateUnformatted = new Date((long) (System.currentTimeMillis() + unbanTime*1000));
 		String unbanDate = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a z").format(unbanDateUnformatted);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 2);
 		
 		Bukkit.getBanList(Type.NAME).addBan(targetPlayer.getName(), message, unbanDateUnformatted, sender.getName());
@@ -124,11 +124,11 @@ public class TempbanCommand implements CommandExecutor {
 			Bukkit.getServer().getPlayer(args[0]).kickPlayer("You are tempbanned until " + unbanDate + " for this reason: " + message);
 		}
 		
-		if(config.broadcastTempbans() == true) {
+		if(ConfigConstants.BROADCAST_TEMPBANS == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been tempbanned for " + OnTimeUtilities.splitSeconds(unbanTime) + " for this reason: " + message);
 		}
 		
-		if(config.autoRecordTempbans() == true) {
+		if(ConfigConstants.AUTO_RECORD_TEMPBANS == true) {
 			noteList.add(prefix + "has been tempbanned for " + OnTimeUtilities.splitSeconds(unbanTime) + " for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been tempbanned for " + OnTimeUtilities.splitSeconds(unbanTime) + " for this reason: " + message);
 			userFile.set("Notes", noteList);

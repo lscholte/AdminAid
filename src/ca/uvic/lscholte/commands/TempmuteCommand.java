@@ -18,7 +18,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -29,7 +29,7 @@ public class TempmuteCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public TempmuteCommand(AdminAid instance) {
 		plugin = instance;
@@ -44,7 +44,7 @@ public class TempmuteCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.tempmute")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -114,7 +114,7 @@ public class TempmuteCommand implements CommandExecutor {
 		Date unmuteDateUnformatted = new Date((long) (System.currentTimeMillis() + unmuteTime*1000));
 		String unmuteDate = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a z").format(unmuteDateUnformatted);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 2);
 		
 		FileUtilities.createNewFile(file);
@@ -123,11 +123,11 @@ public class TempmuteCommand implements CommandExecutor {
 		userFile.set("TempMuteEnd", (System.currentTimeMillis()/1000) + unmuteTime);
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been tempmuted until " + unmuteDate + " for this reason: " + message);
 		
-		if(config.broadcastTempmutes() == true) {
+		if(ConfigConstants.BROADCAST_TEMPMUTES == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
 		}
 		
-		if(config.autoRecordTempmutes() == true) {
+		if(ConfigConstants.AUTO_RECORD_TEMPMUTES == true) {
 			noteList.add(prefix + "has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
 			userFile.set("Notes", noteList);

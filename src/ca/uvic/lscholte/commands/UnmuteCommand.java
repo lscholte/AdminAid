@@ -13,7 +13,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -23,7 +23,7 @@ public class UnmuteCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public UnmuteCommand(AdminAid instance) {
 		plugin = instance;
@@ -38,7 +38,7 @@ public class UnmuteCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.unmute")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -73,16 +73,16 @@ public class UnmuteCommand implements CommandExecutor {
 		userFile.set("TempMuteReason", null);
 		userFile.set("TempMuteEnd", null);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);		
+		String prefix = ConfigConstants.getPrefix(sender);		
 		String message = StringUtilities.buildString(args, 1);
 		
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been unmuted for this reason: " + message);
 		
-		if(config.broadcastUnmutes() == true) {
+		if(ConfigConstants.BROADCAST_UNMUTES == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.GREEN + targetPlayer.getName() + " has been unmuted for this reason: " + message);
 		}
 		
-		if(config.autoRecordUnmutes() == true) {
+		if(ConfigConstants.AUTO_RECORD_UNMUTES == true) {
 			noteList.add(prefix + "has been unmuted for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been unmuted for this reason: " + message);
 			userFile.set("Notes", noteList);

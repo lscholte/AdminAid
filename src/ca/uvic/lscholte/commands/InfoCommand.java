@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.StringUtilities;
@@ -20,7 +20,7 @@ public class InfoCommand implements CommandExecutor {
 		
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public InfoCommand(AdminAid instance) {
 		plugin = instance;
@@ -35,7 +35,7 @@ public class InfoCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {	
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.info")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -72,7 +72,7 @@ public class InfoCommand implements CommandExecutor {
 			else {
 				inputList = plugin.getConfig().getStringList("Info." + topic);
 			}
-			double configNumber = config.getInfoPerPage();
+			double configNumber = ConfigConstants.INFO_PER_PAGE;
 			List<String> outputList;
 			int totalPages = misc.getTotalPages(inputList, configNumber);
 			int page;

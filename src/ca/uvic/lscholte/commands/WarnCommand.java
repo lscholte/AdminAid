@@ -16,7 +16,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -27,7 +27,7 @@ public class WarnCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public WarnCommand(AdminAid instance) {
 		plugin = instance;
@@ -42,7 +42,7 @@ public class WarnCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 
 		if(!sender.hasPermission("adminaid.warn")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -67,17 +67,17 @@ public class WarnCommand implements CommandExecutor {
 		List<String> noteList = userFile.getStringList("Notes");
 		List<String> mailListNew = userFile.getStringList("NewMail");
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);		
+		String prefix = ConfigConstants.getPrefix(sender);		
 		String message = StringUtilities.buildString(args, 1);
 		
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been warned for this reason: " + message);
 		FileUtilities.createNewFile(file);
 		
-		if(config.broadcastWarns() == true) {
+		if(ConfigConstants.BROADCAST_WARNS == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been warned for this reason: " + message);
 		}
 		
-		if(config.autoRecordWarns() == true) {
+		if(ConfigConstants.AUTO_RECORD_WARNS == true) {
 			noteList.add(prefix + "has been warned for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been warned for this reason: " + message);
 			userFile.set("Notes", noteList);
@@ -86,8 +86,8 @@ public class WarnCommand implements CommandExecutor {
 			Player player = Bukkit.getServer().getPlayer(args[0]);
 			player.sendMessage(ChatColor.RED + "You have been warned for this reason: " + message);
 			
-			if(config.freezePlayersOnWarns() == true) {
-				int freezeTime = config.getFreezeTime();
+			if(ConfigConstants.FREEZE_PLAYERS_ON_WARNS == true) {
+				int freezeTime = ConfigConstants.FREEZE_TIME;
 				player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20*freezeTime, 128));
 				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20*freezeTime, 128));
 				player.sendMessage(ChatColor.RED + "You will be unfrozen after " + OnTimeUtilities.splitSeconds(freezeTime));

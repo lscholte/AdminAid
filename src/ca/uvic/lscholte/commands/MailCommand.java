@@ -14,7 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -25,7 +25,7 @@ public class MailCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public MailCommand(AdminAid instance) {
 		plugin = instance;
@@ -74,7 +74,7 @@ public class MailCommand implements CommandExecutor {
 	
 	public boolean readMail(CommandSender sender, String[] args) {
 		
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 		
 		if(!(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.RED + "The console does not have a mailbox");
@@ -106,7 +106,7 @@ public class MailCommand implements CommandExecutor {
 			FileUtilities.saveYamlFile(userFile, file);
 			return true;
 		}
-		double configNumber = config.getMailPerPage();
+		double configNumber = ConfigConstants.MAIL_PER_PAGE;
 		List<String> outputList;
 		int totalPages = misc.getTotalPages(mailListRead, configNumber);
 		int page;
@@ -233,7 +233,7 @@ public class MailCommand implements CommandExecutor {
 		if(Bukkit.getServer().getPlayer(args[1]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[1]);
 		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
 	
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 2);
 		
 		File childFile = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
@@ -264,7 +264,7 @@ public class MailCommand implements CommandExecutor {
 		File dir = new File(plugin.getDataFolder() + "/userdata/");
 		File[] children = dir.listFiles();
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
 		for(int i = 0; i < children.length; ++i) {
@@ -292,7 +292,7 @@ public class MailCommand implements CommandExecutor {
 		File dir = new File(plugin.getDataFolder() + "/userdata/");
 		File[] children = dir.listFiles();
 
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
 		for(int i = 0; i < children.length; i++) {

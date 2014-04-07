@@ -15,7 +15,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
@@ -25,7 +25,7 @@ public class BanCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public BanCommand(AdminAid instance) {
 		plugin = instance;
@@ -40,7 +40,7 @@ public class BanCommand implements CommandExecutor {
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {	
 		
 		misc = new MiscUtilities(plugin);
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 		
 		if(!sender.hasPermission("adminaid.ban")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
@@ -75,7 +75,7 @@ public class BanCommand implements CommandExecutor {
 		
 		FileUtilities.createNewFile(file);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
 		Bukkit.getBanList(Type.NAME).addBan(targetPlayer.getName(), message, null, sender.getName());
@@ -86,11 +86,11 @@ public class BanCommand implements CommandExecutor {
 		if(targetPlayer.isOnline()) {
 			Bukkit.getServer().getPlayer(args[0]).kickPlayer("You are banned for this reason: " + message);
 		}
-		if(config.broadcastBans() == true) {
+		if(ConfigConstants.BROADCAST_BANS == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been banned for this reason: " + message);
 		}
 		
-		if(config.autoRecordBans() == true) {
+		if(ConfigConstants.AUTO_RECORD_BANS == true) {
 			noteList.add(prefix + "has been banned for this reason: " + message);
 			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been banned for this reason: " + message);
 			userFile.set("Notes", noteList);

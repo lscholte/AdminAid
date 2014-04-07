@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.ConfigValues;
+import ca.uvic.lscholte.ConfigConstants;
 import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
 import ca.uvic.lscholte.utilities.NumberUtilities;
@@ -23,7 +23,7 @@ public class NoteCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
 	private MiscUtilities misc;
-	private ConfigValues config;
+	//private ConfigValues config;
 	
 	public NoteCommand(AdminAid instance) {
 		plugin = instance;
@@ -78,7 +78,7 @@ public class NoteCommand implements CommandExecutor {
 		if(Bukkit.getServer().getPlayer(args[1]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[1]);
 		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
 		
-		String prefix = new ConfigValues(plugin).getPrefix(sender);
+		String prefix = ConfigConstants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 2);
 		
 		File file = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
@@ -95,7 +95,7 @@ public class NoteCommand implements CommandExecutor {
 	
 	public boolean listPlayers(CommandSender sender, String[] args) {
 		
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 		
 		if(args.length > 2) {
 			sender.sendMessage(ChatColor.RED + "Too many arguments!");
@@ -118,7 +118,7 @@ public class NoteCommand implements CommandExecutor {
 					inputList.add(name);
 				}
 			}
-			double configNumber = config.getNotesPerPage();
+			double configNumber = ConfigConstants.NOTES_PER_PAGE;
 			List<String> outputList;
 			int totalPages = misc.getTotalPages(inputList, configNumber);
 			int page;
@@ -152,7 +152,7 @@ public class NoteCommand implements CommandExecutor {
 
 	public boolean readNotes(CommandSender sender, String[] args) {
 		
-		config = new ConfigValues(plugin);
+		//config = new ConfigValues(plugin);
 		
 		if(args.length < 2) {
 			sender.sendMessage(ChatColor.RED + "Too few arguments!");
@@ -182,7 +182,7 @@ public class NoteCommand implements CommandExecutor {
 		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
 		
 		List<String> inputList = userFile.getStringList("Notes");
-		double configNumber = config.getNotesPerPage();
+		double configNumber = ConfigConstants.NOTES_PER_PAGE;
 		List<String> outputList;
 		int totalPages = misc.getTotalPages(inputList, configNumber);
 		int page;
