@@ -1,6 +1,5 @@
 package ca.uvic.lscholte.listeners;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,31 +41,33 @@ public class CommandListener implements Listener {
 		}
 		
 		for(String com : blockedCommands) {
-			if(event.getMessage().startsWith("/" + com + " ")) {
-				Player player = event.getPlayer();
-				File file = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase() + ".yml");
-				YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
-				
-				if(misc.isPermaMuted(player)) {
-					event.setCancelled(true);
-					String defaultMessage = "permanently muted";
-					player.sendMessage(ChatColor.RED + "You are " + userFile.getString("PermaMuteReason", defaultMessage));
-				}
-				else if(misc.isTempMuted(player)) {
-					String defaultMessage = "temporarily muted";
-					if(System.currentTimeMillis()/1000 >= userFile.getDouble("TempMuteEnd")) {
-						userFile.set("TempMuted", null);
-						userFile.set("TempMuteReason", null);
-						userFile.set("TempMuteEnd", null);
-						FileUtilities.saveYamlFile(userFile, file);
-					}
-					else {
-						event.setCancelled(true);
-						player.sendMessage(ChatColor.RED + "You are " + userFile.getString("TempMuteReason", defaultMessage));
-					}
-				}
-				break;
+			if(!event.getMessage().startsWith("/" + com + " ")) continue;
+			
+			Player player = event.getPlayer();
+			//File file = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase() + ".yml");
+			//YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
+			YamlConfiguration config = FileUtilities.loadYamlConfiguration(plugin, player.getUniqueId());
+			
+			if(misc.isPermaMuted(player)) {
+				event.setCancelled(true);
+				String defaultMessage = "permanently muted";
+				player.sendMessage(ChatColor.RED + "You are " + config.getString("PermaMuteReason", defaultMessage));
 			}
+			else if(misc.isTempMuted(player)) {
+				String defaultMessage = "temporarily muted";
+				if(System.currentTimeMillis()/1000 >= config.getDouble("TempMuteEnd")) {
+					config.set("TempMuted", null);
+					config.set("TempMuteReason", null);
+					config.set("TempMuteEnd", null);
+					//FileUtilities.saveYamlFile(config, file);
+					FileUtilities.saveYamlConfiguration(plugin, config, player.getUniqueId());
+				}
+				else {
+					event.setCancelled(true);
+					player.sendMessage(ChatColor.RED + "You are " + config.getString("TempMuteReason", defaultMessage));
+				}
+			}
+			break;
 		}	
 	}
 }
