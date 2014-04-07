@@ -58,7 +58,7 @@ public final class FileUtilities {
 	 * @param yamlConfig The YamlConfiguration to save
 	 * @param file The File to save the YamlConfiguration to
 	 */
-	public static void saveYamlFile(YamlConfiguration yamlConfig, File file) { //TODO: Change signature
+	public static void saveYamlFile(YamlConfiguration yamlConfig, File file) { //TODO: Remove this method
 		try {
 			yamlConfig.save(file);
 		}
