@@ -25,14 +25,14 @@ public final class CommandUtilities {
  
 	public static void unregisterBukkitCommand(PluginCommand cmd) {
 		try {
-			Object result = getPrivateField(AdminAid.plugin.getServer().getPluginManager(), "commandMap");
+			Object result = getPrivateField(AdminAid.getPlugin().getServer().getPluginManager(), "commandMap");
 			SimpleCommandMap commandMap = (SimpleCommandMap) result;
 			Object map = getPrivateField(commandMap, "knownCommands");
 			@SuppressWarnings("unchecked")
 			HashMap<String, Command> knownCommands = (HashMap<String, Command>) map;
 			knownCommands.remove(cmd.getName());
 			for (String alias : cmd.getAliases()) {
-				if(knownCommands.containsKey(alias) && knownCommands.get(alias).toString().contains(AdminAid.plugin.getName())) {
+				if(knownCommands.containsKey(alias) && knownCommands.get(alias).toString().contains(AdminAid.getPlugin().getName())) {
 					knownCommands.remove(alias);
 				}
 			}
