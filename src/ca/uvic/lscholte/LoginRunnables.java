@@ -16,9 +16,9 @@ public class LoginRunnables {
 		private AdminAid plugin;
 		private Player player;
 		
-		public MailRunnable(AdminAid instance, Player p) {
-			plugin = instance;
-			player = p;
+		public MailRunnable(AdminAid plugin, Player player) {
+			this.plugin = plugin;
+			this.player = player;
 		}
 		
 		@Override
@@ -27,6 +27,7 @@ public class LoginRunnables {
 			if(plugin.getConfig().getBoolean("DisableCommand.Mail") == true) return;
 			if(!player.hasPermission("adminaid.mail.read")) return;
 			
+			//TODO: Update for UUIDs
 			File file = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase() + ".yml");
 			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
 			List<String> mailListNew = userFile.getStringList("NewMail");
@@ -49,15 +50,17 @@ public class LoginRunnables {
 	
 	public static class LoginMessagesRunnable implements Runnable {
 		
+		private ConfigConstants constants;
 		private Player player;
 		
-		public LoginMessagesRunnable(Player p) {
-			player = p;
+		public LoginMessagesRunnable(AdminAid plugin, Player player) {
+			constants = ConfigConstants.getInstance(plugin);
+			this.player = player;
 		}
 		
 		@Override
 		public void run() {
-			for(String line : ConfigConstants.getLoginMessages(player)) {
+			for(String line : constants.getLoginMessages(player)) {
 				player.sendMessage(line);
 			}
 		}
@@ -68,9 +71,9 @@ public class LoginRunnables {
 		private AdminAid plugin;
 		private Player player;
 		
-		public UpdaterRunnable(AdminAid instance, Player p) {
-			plugin = instance;
-			player = p;
+		public UpdaterRunnable(AdminAid plugin, Player player) {
+			this.plugin = plugin;
+			this.player = player;
 		}
 		
 		@Override
