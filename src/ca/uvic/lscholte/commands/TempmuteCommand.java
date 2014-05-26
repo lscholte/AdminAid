@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,60 +20,63 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.ConfigConstants;
-import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
+import ca.uvic.lscholte.utilities.MiscUtilities;
 import ca.uvic.lscholte.utilities.OnTimeUtilities;
 import ca.uvic.lscholte.utilities.StringUtilities;
 
 public class TempmuteCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
-	private MiscUtilities misc;
-	//private ConfigValues config;
+	private ConfigConstants constants;
 	
-	public TempmuteCommand(AdminAid instance) {
-		plugin = instance;
-		plugin.getCommand("tempmute").setExecutor(this);
-		if(plugin.getConfig().getBoolean("DisableCommand.Tempmute") == true) {
-			PluginCommand tempmute = plugin.getCommand("tempmute");
-			CommandUtilities.unregisterBukkitCommand(tempmute);
+	public TempmuteCommand(AdminAid plugin) {
+		this.plugin = plugin;
+		constants = ConfigConstants.getInstance(plugin);
+		if(plugin.getConfig().getBoolean("DisableCommand.Tempmute") == false) { 	
+			CommandUtilities.giveCommandPriority(plugin, this, "tempmute");	
+		}
+		else {
+			PluginCommand com = plugin.getCommand("tempmute");
+			CommandUtilities.unregisterBukkitCommand(plugin, com);
 		}
 	}
 		
 	@Override
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
-		
-		misc = new MiscUtilities(plugin);
-		//config = new ConfigValues(plugin);
-
 		if(!sender.hasPermission("adminaid.tempmute")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
 			return true;
 		}
+		
 		if(args.length < 3) {
 			sender.sendMessage(ChatColor.RED + "Too few arguments!");
-			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/tempmute <playername> <time> <reason> " + ChatColor.RED + "to tempmute player");
+			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/tempmute <player> <time> <reason> " + ChatColor.RED + "to tempmute player");
 			return true;
 		}	
+		
 		if(StringUtilities.nameContainsInvalidCharacter(args[0])) {
-			sender.sendMessage(ChatColor.RED + "That is an invalid playername");
+			sender.sendMessage(ChatColor.RED + "That is an invalid player name");
 			return true;
 		}
 		
-		OfflinePlayer targetPlayer;
-		if(Bukkit.getServer().getPlayer(args[0]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[0]);
-		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+		//TODO: Update for UUIDs
+		OfflinePlayer targetPlayer = Bukkit.getServer().getPlayer(args[0]) != null ?
+				Bukkit.getServer().getPlayer(args[0]) :
+				Bukkit.getServer().getOfflinePlayer(args[0]);
+				
+		UUID uuid = targetPlayer.getUniqueId();
 						
-		File file = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
-		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
+		//TODO: Update for UUIDs
+		YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
 		List<String> noteList = userFile.getStringList("Notes");						
 		
 		if(userFile.getBoolean("MuteExempt") == true && !(sender instanceof ConsoleCommandSender)) {
 			sender.sendMessage(ChatColor.RED + targetPlayer.getName() + " is exempt from being muted");
 			return true;
 		}
-		if(misc.isPermaMuted(targetPlayer)) {
+		if(MiscUtilities.isPermaMuted(plugin, targetPlayer)) {
 			sender.sendMessage(ChatColor.RED + targetPlayer.getName() + " is already permanently muted");
 			return true;
 		}
@@ -114,25 +118,24 @@ public class TempmuteCommand implements CommandExecutor {
 		Date unmuteDateUnformatted = new Date((long) (System.currentTimeMillis() + unmuteTime*1000));
 		String unmuteDate = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a z").format(unmuteDateUnformatted);
 		
-		String prefix = ConfigConstants.getPrefix(sender);
+		String prefix = constants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 2);
 		
-		FileUtilities.createNewFile(file);
 		userFile.set("TempMuted", true);
 		userFile.set("TempMuteReason", "tempmuted until " + unmuteDate + " for this reason: " + message);
 		userFile.set("TempMuteEnd", (System.currentTimeMillis()/1000) + unmuteTime);
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been tempmuted until " + unmuteDate + " for this reason: " + message);
 		
-		if(ConfigConstants.BROADCAST_TEMPMUTES == true) {
+		if(constants.BROADCAST_TEMPMUTES == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
 		}
 		
-		if(ConfigConstants.AUTO_RECORD_TEMPMUTES == true) {
+		if(constants.AUTO_RECORD_TEMPMUTES == true) {
 			noteList.add(prefix + "has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
-			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
+			MiscUtilities.addStringStaffList(plugin, prefix + targetPlayer.getName() + " has been tempmuted for " + OnTimeUtilities.splitSeconds(unmuteTime) + " for this reason: " + message);
 			userFile.set("Notes", noteList);
 		}
-		FileUtilities.saveYamlFile(userFile, file);
+		FileUtilities.saveYamlConfiguration(plugin, userFile, uuid);
 		return true;
 	}
 }

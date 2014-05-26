@@ -2,6 +2,7 @@ package ca.uvic.lscholte.commands;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,55 +13,59 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.ConfigConstants;
-import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
+import ca.uvic.lscholte.utilities.MiscUtilities;
 import ca.uvic.lscholte.utilities.StringUtilities;
 
 public class MuteCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
-	private MiscUtilities misc;
-	//private ConfigValues config;
+	private ConfigConstants constants;
 	
-	public MuteCommand(AdminAid instance) {
-		plugin = instance;
-		plugin.getCommand("mute").setExecutor(this);
-		if(plugin.getConfig().getBoolean("DisableCommand.Mute") == true) {
-			PluginCommand mute = plugin.getCommand("mute");
-			CommandUtilities.unregisterBukkitCommand(mute);
+	public MuteCommand(AdminAid plugin) {
+		this.plugin = plugin;
+		constants = ConfigConstants.getInstance(plugin);
+		if(plugin.getConfig().getBoolean("DisableCommand.Mute") == false) { 	
+			CommandUtilities.giveCommandPriority(plugin, this, "mute");	
+		}
+		else {
+			PluginCommand com = plugin.getCommand("mute");
+			CommandUtilities.unregisterBukkitCommand(plugin, com);
 		}
 	}
 		
 	@Override
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
-		
-		misc = new MiscUtilities(plugin);
-		//config = new ConfigValues(plugin);
-
 		if(!sender.hasPermission("adminaid.mute")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
 			return true;
 		}
+		
 		if(args.length < 2) {
 			sender.sendMessage(ChatColor.RED + "Too few arguments!");
-			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mute <playername> <reason> " + ChatColor.RED + "to mute player");
+			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mute <player> <reason> " + ChatColor.RED + "to mute player");
 			return true;
 		}
+		
 		if(StringUtilities.nameContainsInvalidCharacter(args[0])) {
-			sender.sendMessage(ChatColor.RED + "That is an invalid playername");
+			sender.sendMessage(ChatColor.RED + "That is an invalid player name");
 			return true;
 		}
 		
-		OfflinePlayer targetPlayer;
-		if(Bukkit.getServer().getPlayer(args[0]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[0]);
-		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+		//TODO: Update for UUIDs
+		OfflinePlayer targetPlayer = Bukkit.getServer().getPlayer(args[0]) != null ?
+				Bukkit.getServer().getPlayer(args[0]) :
+				Bukkit.getServer().getOfflinePlayer(args[0]);
+				
+		UUID uuid = targetPlayer.getUniqueId();
 		
-		File file = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
-		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
+		//TODO: Update for UUIDs
+		YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
 		List<String> noteList = userFile.getStringList("Notes");
 		
 		if(userFile.getBoolean("MuteExempt") == true && !(sender instanceof ConsoleCommandSender)) {
@@ -68,30 +73,29 @@ public class MuteCommand implements CommandExecutor {
 			return true;
 		}
 
-		if(misc.isPermaMuted(targetPlayer)) {
+		if(MiscUtilities.isPermaMuted(plugin, targetPlayer)) {
 			sender.sendMessage(ChatColor.RED + targetPlayer.getName() + " is already permanently muted");
 			return true;
 		}
 		
-		FileUtilities.createNewFile(file);
 		userFile.set("PermaMuted", true);
 		
-		String prefix = ConfigConstants.getPrefix(sender);
+		String prefix = constants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
 		userFile.set("PermaMuteReason", "muted for this reason: " + message);
 		sender.sendMessage(ChatColor.GREEN + targetPlayer.getName() + " has been muted for this reason: " + message);
 		
-		if(ConfigConstants.BROADCAST_MUTES == true) {
+		if(constants.BROADCAST_MUTES == true) {
 			Bukkit.getServer().broadcastMessage(ChatColor.RED + targetPlayer.getName() + " has been muted for this reason: " + message);
 		}
 		
-		if(ConfigConstants.AUTO_RECORD_MUTES == true) {
+		if(constants.AUTO_RECORD_MUTES == true) {
 			noteList.add(prefix + "has been muted for this reason: " + message);
-			misc.addStringStaffList(prefix + targetPlayer.getName() + " has been muted for this reason: " + message);
+			MiscUtilities.addStringStaffList(plugin, prefix + targetPlayer.getName() + " has been muted for this reason: " + message);
 			userFile.set("Notes", noteList);
 		}
-		FileUtilities.saveYamlFile(userFile, file);
+		FileUtilities.saveYamlConfiguration(plugin, userFile, uuid);
 		return true;
 	}
 }

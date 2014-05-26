@@ -2,6 +2,7 @@ package ca.uvic.lscholte.commands;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,79 +16,85 @@ import org.bukkit.entity.Player;
 
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.ConfigConstants;
-import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
+import ca.uvic.lscholte.utilities.MiscUtilities;
 import ca.uvic.lscholte.utilities.NumberUtilities;
 import ca.uvic.lscholte.utilities.StringUtilities;
 
 public class MailCommand implements CommandExecutor {
 	
 	private AdminAid plugin;
-	private MiscUtilities misc;
-	//private ConfigValues config;
+	private ConfigConstants constants;
 	
-	public MailCommand(AdminAid instance) {
-		plugin = instance;
-		plugin.getCommand("mail").setExecutor(this);
-		if(plugin.getConfig().getBoolean("DisableCommand.Mail") == true) {
-			PluginCommand mail = plugin.getCommand("mail");
-			CommandUtilities.unregisterBukkitCommand(mail);
+	public MailCommand(AdminAid plugin) {
+		this.plugin = plugin;
+		constants = ConfigConstants.getInstance(plugin);
+		if(plugin.getConfig().getBoolean("DisableCommand.Mail") == false) { 	
+			CommandUtilities.giveCommandPriority(plugin, this, "mail");	
+		}
+		else {
+			PluginCommand com = plugin.getCommand("mail");
+			CommandUtilities.unregisterBukkitCommand(plugin, com);
 		}
 	}
 			
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {	
-		
-		misc = new MiscUtilities(plugin);
-
-		if(args.length == 0) showUsage(sender);
-		else {
-			if(args[0].equalsIgnoreCase("read")) {
-				if(sender.hasPermission("adminaid.mail.read")) readMail(sender, args);
-				else sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
-			}
-			else if(args[0].equalsIgnoreCase("remove")) {
-				if(sender.hasPermission("adminaid.mail.remove")) removeSingleMail(sender, args);
-				else sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
-			}
-			else if(args[0].equalsIgnoreCase("removeall")) {
-				if(sender.hasPermission("adminaid.mail.remove")) removeAllMail(sender, args);
-				else sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
-			}
-			else if(args[0].equalsIgnoreCase("send")) {
-				if(sender.hasPermission("adminaid.mail.send")) sendMail(sender, args);
-				else sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
-			}
-			else if(args[0].equalsIgnoreCase("sendall")) {
-				if(sender.hasPermission("adminaid.mail.sendall")) sendAllMail(sender, args);
-				else sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
-			}
-			else if(args[0].equalsIgnoreCase("sendstaff")) {
-				if(sender.hasPermission("adminaid.mail.sendstaff")) sendStaffMail(sender, args);
-				else sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
-			}
-			else showUsage(sender);
+		if(args.length == 0) {
+			return showUsage(sender);
 		}
+		if(args[0].equalsIgnoreCase("read")) {
+			if(sender.hasPermission("adminaid.mail.read")) {
+				return readMail(sender, args);
+			}
+		}
+		else if(args[0].equalsIgnoreCase("remove")) {
+			if(sender.hasPermission("adminaid.mail.remove")) {
+				return removeSingleMail(sender, args);
+			}
+		}
+		else if(args[0].equalsIgnoreCase("removeall")) {
+			if(sender.hasPermission("adminaid.mail.remove")) {
+				return removeAllMail(sender, args);
+			}
+		}
+		else if(args[0].equalsIgnoreCase("send")) {
+			if(sender.hasPermission("adminaid.mail.send")) {
+				return sendMail(sender, args);
+			}
+		}
+		else if(args[0].equalsIgnoreCase("sendall")) {
+			if(sender.hasPermission("adminaid.mail.sendall")) {
+				return sendAllMail(sender, args);
+			}
+		}
+		else if(args[0].equalsIgnoreCase("sendstaff")) {
+			if(sender.hasPermission("adminaid.mail.sendstaff")) {
+				return sendStaffMail(sender, args);
+			}
+		}
+		else return showUsage(sender);
+		sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
 		return true;
 	}
 	
-	public boolean readMail(CommandSender sender, String[] args) {
-		
-		//config = new ConfigValues(plugin);
-		
+	public boolean readMail(CommandSender sender, String[] args) {		
 		if(!(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.RED + "The console does not have a mailbox");
 			return true;
 		}
+		
 		if(args.length > 2) {
 			sender.sendMessage(ChatColor.RED + "Too many arguments!");
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail read [page #] " + ChatColor.RED + "to read mail");
 			return true;
 		}
 		
-		File file = new File(plugin.getDataFolder() + "/userdata/" + sender.getName().toLowerCase() + ".yml");
-		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
+		//TODO: Update for UUIDs
+		UUID uuid = ((Player) sender).getUniqueId();
+		
+		YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
 		List<String> mailListNew = userFile.getStringList("NewMail");
 		List<String> mailListRead = userFile.getStringList("ReadMail");
 		
@@ -103,39 +110,35 @@ public class MailCommand implements CommandExecutor {
 			mailListNew.clear();
 			userFile.set("NewMail", mailListNew);
 			userFile.set("ReadMail", mailListRead);
-			FileUtilities.saveYamlFile(userFile, file);
+			FileUtilities.saveYamlConfiguration(plugin, userFile, uuid);
 			return true;
 		}
-		double configNumber = ConfigConstants.MAIL_PER_PAGE;
-		List<String> outputList;
-		int totalPages = misc.getTotalPages(mailListRead, configNumber);
-		int page;
-		try{
-			if(args.length == 1) {
-				outputList = misc.getListPage(mailListRead, "1", configNumber);
-				page = 1;
-			}
-			else {
-				outputList = misc.getListPage(mailListRead, args[1], configNumber);
-				page = Integer.parseInt(args[1]);
-			}
-			
-			sender.sendMessage(ChatColor.GOLD + "Mail Page " + page + " of " + totalPages + " for " + sender.getName());
-			int messageNumberPrefix = (int) ((page*configNumber)-configNumber)+1;
-			for(String output : outputList) {
-				output = output.replace("<index>", Integer.toString(messageNumberPrefix));
-				sender.sendMessage(output);
-				messageNumberPrefix++;
-			}
-		}
-		catch(IllegalArgumentException e) { //ie args[1] is not a natural Number (1, 2, 3 etc)
-			sender.sendMessage(ChatColor.RED + "That is an invalid page number");
-		}
-		catch(IllegalStateException e) { //ie the inputList is empty
+		
+		if(mailListRead == null || mailListRead.isEmpty()) {
 			sender.sendMessage(ChatColor.RED + "You don't have any mail");
+			return true;
 		}
-		catch(IndexOutOfBoundsException e) { //ie args[1] is higher than the amount of pages
+		
+		if(args.length == 2 && (!NumberUtilities.isInt(args[1]) || Integer.parseInt(args[1]) <= 0)) {
+			sender.sendMessage(ChatColor.RED + "That is an invalid page number");
+			return true;
+		}
+		
+		int page = args.length == 1 ? 1 : Integer.parseInt(args[1]);
+		int totalPages = MiscUtilities.getTotalPages(mailListRead, constants.MAIL_PER_PAGE);
+
+		if(page > totalPages) {
 			sender.sendMessage(ChatColor.RED + "You only have " + totalPages + " pages of mail");
+			return true;
+		}
+		
+		List<String> outputList = MiscUtilities.getListPage(mailListRead, page, constants.MAIL_PER_PAGE);
+		sender.sendMessage(ChatColor.GOLD + "Mail Page " + page + " of " + totalPages + " for " + sender.getName());
+		int messageNumberPrefix = ((page*constants.MAIL_PER_PAGE)-constants.MAIL_PER_PAGE)+1;
+		for(String output : outputList) {
+			output = output.replace("<index>", Integer.toString(messageNumberPrefix));
+			sender.sendMessage(output);
+			++messageNumberPrefix;
 		}
 		return true;
 	}
@@ -145,19 +148,22 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "The console does not have a mailbox");
 			return true;
 		}
+		
 		if(args.length < 2) {
 			sender.sendMessage(ChatColor.RED + "Too few arguments!");
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail remove <note #> " + ChatColor.RED + "to remove mail message");
 			return true;
 		}
+		
 		if(args.length > 2) {
 			sender.sendMessage(ChatColor.RED + "Too many arguments!");
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail remove <message #> " + ChatColor.RED + "to remove mail message");
 			return true;
 		}
 		
-		File file = new File(plugin.getDataFolder() + "/userdata/" + sender.getName().toLowerCase() + ".yml");
-		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
+		//TODO: Update for UUIDs
+		UUID uuid = ((Player) sender).getUniqueId();
+		YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
 		List<String> mailListNew = userFile.getStringList("NewMail");
 		List<String> mailListRead = userFile.getStringList("ReadMail");
 		
@@ -172,7 +178,7 @@ public class MailCommand implements CommandExecutor {
 		
 		int number = Integer.parseInt(args[1]);
 		
-		if(!file.exists() || mailListRead.isEmpty() || 
+		if(mailListRead.isEmpty() || 
 				number > mailListRead.size() || number <= 0) {
 			sender.sendMessage(ChatColor.RED + "That message does not exist");
 			return true;
@@ -180,7 +186,7 @@ public class MailCommand implements CommandExecutor {
 
 		mailListRead.remove(number-1);
 		userFile.set("ReadMail", mailListRead);
-		FileUtilities.saveYamlFile(userFile, file);
+		FileUtilities.saveYamlConfiguration(plugin, userFile, uuid);
 		if(mailListRead.isEmpty()) {
 			sender.sendMessage(ChatColor.GREEN + "Message " + args[1] + " has been removed from your mailbox");
 			sender.sendMessage(ChatColor.GREEN + "Your mailbox is now empty");
@@ -195,14 +201,16 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "The console does not have a mailbox");
 			return true;
 		}
+		
 		if(args.length > 1) {
 			sender.sendMessage(ChatColor.RED + "Too many arguments!");
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail removeall " + ChatColor.RED + "to remove all mail");
 			return true;
 		}
 		
-		File file = new File(plugin.getDataFolder() + "/userdata/" + sender.getName().toLowerCase() + ".yml");
-		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
+		//TODO: Update for UUIDs
+		UUID uuid = ((Player) sender).getUniqueId();
+		YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
 		List<String> mailListNew = userFile.getStringList("NewMail");
 		List<String> mailListRead = userFile.getStringList("ReadMail");
 		
@@ -210,9 +218,10 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "You have unread mail! Read your mail first.");
 			return true;
 		}
+		
 		mailListRead.clear();
 		userFile.set("ReadMail", mailListRead);
-		FileUtilities.saveYamlFile(userFile, file);
+		FileUtilities.saveYamlConfiguration(plugin, userFile, uuid);
 		sender.sendMessage(ChatColor.GREEN + "All mail has been removed from your mailbox");
 		return true;
 	}
@@ -220,7 +229,7 @@ public class MailCommand implements CommandExecutor {
 	public boolean sendMail(CommandSender sender, String[] args) {
 		if(args.length < 3) {
 			sender.sendMessage(ChatColor.RED + "Too few arguments!");
-			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail send <playername> <message> " + ChatColor.RED + "to send message to player");
+			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail send <player> <message> " + ChatColor.RED + "to send message to player");
 			return true;
 		}
 		
@@ -229,24 +238,29 @@ public class MailCommand implements CommandExecutor {
 			return true;
 		}
 				
-		OfflinePlayer targetPlayer;
-		if(Bukkit.getServer().getPlayer(args[1]) != null) targetPlayer = Bukkit.getServer().getPlayer(args[1]);
-		else targetPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
-	
-		String prefix = ConfigConstants.getPrefix(sender);
-		String message = StringUtilities.buildString(args, 2);
-		
-		File childFile = new File(plugin.getDataFolder() + "/userdata/" + targetPlayer.getName().toLowerCase() + ".yml");
-		YamlConfiguration userFile = YamlConfiguration.loadConfiguration(childFile);
-		List<String> mailListNew = userFile.getStringList("NewMail");
-		
-		if(!childFile.exists()) {
+		//TODO: Update for UUIDs
+		OfflinePlayer targetPlayer = Bukkit.getServer().getPlayer(args[1]) != null ?
+				Bukkit.getServer().getPlayer(args[1]) :
+				Bukkit.getServer().getOfflinePlayer(args[1]);
+				
+		if(!targetPlayer.hasPlayedBefore()) {
 			sender.sendMessage(ChatColor.RED + targetPlayer.getName() + " has not played on this server before");
 			return true;
 		}
+				
+		UUID uuid = targetPlayer.getUniqueId();
+	
+		String prefix = constants.getPrefix(sender);
+		String message = StringUtilities.buildString(args, 2);
+		
+		//TODO: Update for UUIDs
+		YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
+		List<String> mailListNew = userFile.getStringList("NewMail");
+		
+		
 		mailListNew.add(prefix + message);
 		userFile.set("NewMail", mailListNew);
-		FileUtilities.saveYamlFile(userFile, childFile);
+		FileUtilities.saveYamlConfiguration(plugin, userFile, uuid);
 		sender.sendMessage(ChatColor.GREEN + "Mail sent to " + targetPlayer.getName());
 		if(Bukkit.getServer().getPlayer(args[1]) != null) {
 			Bukkit.getServer().getPlayer(args[1]).sendMessage(ChatColor.GREEN + "You have new mail!");
@@ -264,16 +278,17 @@ public class MailCommand implements CommandExecutor {
 		File dir = new File(plugin.getDataFolder() + "/userdata/");
 		File[] children = dir.listFiles();
 		
-		String prefix = ConfigConstants.getPrefix(sender);
+		String prefix = constants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
-		for(int i = 0; i < children.length; ++i) {
-			File childFile = new File(plugin.getDataFolder() + "/userdata/" + children[i].getName());
-			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(childFile);
+		for(File f : children) {
+			//TODO: Update for UUIDs
+			//File childFile = new File(plugin.getDataFolder() + "/userdata/" + f.getName());
+			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(f);
 			List<String> mailListNew = userFile.getStringList("NewMail");
 			mailListNew.add(prefix + message);
 			userFile.set("NewMail", mailListNew);
-			FileUtilities.saveYamlFile(userFile, childFile);	
+			FileUtilities.saveYamlFile(userFile, f);	
 		}
 		sender.sendMessage(ChatColor.GREEN + "Mail sent to all players");
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
@@ -292,23 +307,25 @@ public class MailCommand implements CommandExecutor {
 		File dir = new File(plugin.getDataFolder() + "/userdata/");
 		File[] children = dir.listFiles();
 
-		String prefix = ConfigConstants.getPrefix(sender);
+		String prefix = constants.getPrefix(sender);
 		String message = StringUtilities.buildString(args, 1);
 		
-		for(int i = 0; i < children.length; i++) {
-			File childFile = new File(plugin.getDataFolder() + "/userdata/" + children[i].getName());
-			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(childFile);
-			List<String> mailListNew = userFile.getStringList("NewMail");
+		for(File f : children) {
+			//TODO: Update for UUIDs
+			//File childFile = new File(plugin.getDataFolder() + "/userdata/" + f.getName());
+			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(f);
 			if(userFile.getBoolean("StaffMember") == true) {
+				List<String> mailListNew = userFile.getStringList("NewMail");
 				mailListNew.add(prefix + message);
 				userFile.set("NewMail", mailListNew);
-				FileUtilities.saveYamlFile(userFile, childFile);	
+				FileUtilities.saveYamlFile(userFile, f);	
 			}
 		}
 		sender.sendMessage(ChatColor.GREEN + "Mail sent to all staff");
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
-			File childFile = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase());
-			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(childFile);
+			//TODO: Update for UUIDs
+			UUID uuid = player.getUniqueId();
+			YamlConfiguration userFile = FileUtilities.loadYamlConfiguration(plugin, uuid);
 			if(userFile.getBoolean("StaffMember") == true) {
 				player.sendMessage(ChatColor.GREEN + "You have new mail!");
 			}
@@ -316,9 +333,9 @@ public class MailCommand implements CommandExecutor {
 		return true;
 	}
 	
-	public void showUsage(CommandSender sender) {
+	public boolean showUsage(CommandSender sender) {
 		if(sender.hasPermission("adminaid.mail.send")) {
-			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail send <playername> <message> " + ChatColor.RED + "to send mail");
+			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail send <player> <message> " + ChatColor.RED + "to send mail");
 		}
 		if(sender.hasPermission("adminaid.mail.sendall")) {
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail sendall <message> " + ChatColor.RED + "to send mail to all players");
@@ -333,12 +350,13 @@ public class MailCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail removeall " + ChatColor.RED + "to remove all mail");
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/mail remove <note #> " + ChatColor.RED + "to remove mail message");
 		}
-		if (!sender.hasPermission("adminaid.mail.send") &&
+		if(!sender.hasPermission("adminaid.mail.send") &&
 				!sender.hasPermission("adminaid.mail.sendall") &&
 				!sender.hasPermission("adminaid.mail.sendstaff") &&
 				!sender.hasPermission("adminaid.mail.read") &&
 				!sender.hasPermission("adminaid.mail.remove")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
 		}
+		return true;
 	}
 }

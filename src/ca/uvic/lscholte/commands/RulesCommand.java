@@ -10,67 +10,64 @@ import org.bukkit.command.PluginCommand;
 
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.ConfigConstants;
-import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.CommandUtilities;
+import ca.uvic.lscholte.utilities.MiscUtilities;
+import ca.uvic.lscholte.utilities.NumberUtilities;
 
 public class RulesCommand implements CommandExecutor {
 		
 	private AdminAid plugin;
-	private MiscUtilities misc;
-	//private ConfigValues config;
+	private ConfigConstants constants;
 	
-	public RulesCommand(AdminAid instance) {
-		plugin = instance;
-		plugin.getCommand("rules").setExecutor(this);
-		if(plugin.getConfig().getBoolean("DisableCommand.Rules") == true) {
-			PluginCommand rules = plugin.getCommand("rules");
-			CommandUtilities.unregisterBukkitCommand(rules);
+	public RulesCommand(AdminAid plugin) {
+		this.plugin = plugin;
+		constants = ConfigConstants.getInstance(plugin);
+		if(plugin.getConfig().getBoolean("DisableCommand.Rules") == false) { 	
+			CommandUtilities.giveCommandPriority(plugin, this, "rules");	
+		}
+		else {
+			PluginCommand com = plugin.getCommand("rules");
+			CommandUtilities.unregisterBukkitCommand(plugin, com);
 		}
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-		misc = new MiscUtilities(plugin);
-		//config = new ConfigValues(plugin);
-
 		if(!sender.hasPermission("adminaid.rules")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use that command");
 			return true;
 		}
+		
 		if(args.length > 1) {
 			sender.sendMessage(ChatColor.RED + "Too many arguments!");
 			sender.sendMessage(ChatColor.RED + "Use " + ChatColor.WHITE + "/rules [page #] " + ChatColor.RED + "to show the rules");
 			return true;
 		}
+		
 		List<String> inputList = plugin.getConfig().getStringList("Rules");
-		double configNumber = ConfigConstants.RULES_PER_PAGE;
-		List<String> outputList;
-		int totalPages = misc.getTotalPages(inputList, configNumber);
-		int page;
-		try{
-			if(args.length == 0) {
-				outputList = misc.getListPage(inputList, "1", configNumber);
-				page = 1;
-			}
-			else {
-				outputList = misc.getListPage(inputList, args[0], configNumber);
-				page = Integer.parseInt(args[0]);
-			}
-			
-			sender.sendMessage(ChatColor.GOLD + "Rule Page " + page + " of " + totalPages);
-			for(String output : outputList) {
-				sender.sendMessage(output);
-			}
-		}
-		catch(IllegalArgumentException e) { //ie args[0] is not a natural Number (1, 2, 3 etc)
-			sender.sendMessage(ChatColor.RED + "That is an invalid page number");
-		}
-		catch(IllegalStateException e) { //ie the original list is empty
+		
+		if(inputList == null || inputList.isEmpty()) {
 			sender.sendMessage(ChatColor.RED + "No rules have been listed");
+			return true;
 		}
-		catch(IndexOutOfBoundsException e) { //ie args[0] is higher than the amount of pages
+		
+		if(args.length == 1 && (!NumberUtilities.isInt(args[0]) || Integer.parseInt(args[0]) <= 0)) {
+			sender.sendMessage(ChatColor.RED + "That is an invalid page number");
+			return true;
+		}
+		
+		int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
+		int totalPages = MiscUtilities.getTotalPages(inputList, constants.RULES_PER_PAGE);
+
+		if(page > totalPages) {
 			sender.sendMessage(ChatColor.RED + "There are only " + totalPages + " pages of rules");
+			return true;
+		}
+				
+		List<String> outputList = MiscUtilities.getListPage(inputList, page, constants.RULES_PER_PAGE);
+		sender.sendMessage(ChatColor.GOLD + "Rule Page " + page + " of " + totalPages);
+		for(String output : outputList) {
+			sender.sendMessage(output);
 		}
 		return true;
 	}
