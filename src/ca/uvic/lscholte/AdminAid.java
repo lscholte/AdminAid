@@ -12,54 +12,53 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ca.uvic.lscholte.commands.AdminaidCommand;
-import ca.uvic.lscholte.commands.BanCommand;
-import ca.uvic.lscholte.commands.ChatspyCommand;
-import ca.uvic.lscholte.commands.InfoCommand;
-import ca.uvic.lscholte.commands.KickCommand;
-import ca.uvic.lscholte.commands.MailCommand;
-import ca.uvic.lscholte.commands.MsgCommand;
-import ca.uvic.lscholte.commands.MuteCommand;
-import ca.uvic.lscholte.commands.NoteCommand;
-import ca.uvic.lscholte.commands.PlayerinfoCommand;
-import ca.uvic.lscholte.commands.ReplyCommand;
-import ca.uvic.lscholte.commands.RulesCommand;
-import ca.uvic.lscholte.commands.StaffchatCommand;
-import ca.uvic.lscholte.commands.TeleportCommand;
-import ca.uvic.lscholte.commands.TempbanCommand;
-import ca.uvic.lscholte.commands.TempmuteCommand;
-import ca.uvic.lscholte.commands.UnbanCommand;
-import ca.uvic.lscholte.commands.UnmuteCommand;
-import ca.uvic.lscholte.commands.WarnCommand;
-import ca.uvic.lscholte.listeners.ChatListener;
-import ca.uvic.lscholte.listeners.CommandListener;
-import ca.uvic.lscholte.listeners.PlayerListener;
+import ca.uvic.lscholte.commands.*;
+import ca.uvic.lscholte.listeners.*;
 import ca.uvic.lscholte.utilities.FileUtilities;
 import ca.uvic.lscholte.utilities.UUIDFetcher;
 
 public final class AdminAid extends JavaPlugin {
 	
 	private static Plugin onTime;
-	private static AdminAid plugin;
 	
 	public static Map<String, String> lastSender;
 	public static List<String> staffChat;
 	public static List<String> frozenPlayers;
 	
 	//TODO: IMPORTANT!!! Convert to UUID system
-			
+	//Concept:
+	//	Do an initial conversion of all names to UUIDs (only do this once)
+	//
+	//	Whenever a command is issued, get the UUID last associated
+	//	with the player name on the server. Note that this may be
+	//	different than what would be returned by querying Mojang's servers.
+	//	However, this should be fine because we shouldn't care what UUID is
+	//	technically associated with a name; we only care about what UUID was
+	//	last associated with the name on the server
+	//
+	//	I need to figure out a quick method for getting the last UUID associated
+	//	with a name quickly. I don't want to have to search linearly through every
+	// 	file linearly until I find the correct one.
+	
+	//TODO: Theoretically a better system for giving AdminAid
+	//priority to commands:
+	//    If command is already registered and command
+	//    is not disabled in config, then unregister command
+	//	  and then reregister so that AdminAid gets the command
+	
 	@Override
 	public void onEnable() {
-		
+				
 		onTime = Bukkit.getPluginManager().getPlugin("OnTime");
-		plugin = this;
 		
 		lastSender = new HashMap<String, String>();
 		staffChat = new ArrayList<String>();
 		frozenPlayers = new ArrayList<String>();
 				
 		saveDefaultConfig();
-				
+		
+		ConfigConstants.getInstance(this);
+		
 		final Updater updater = new Updater(this);
 		updater.updateConfig();
 		this.getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
@@ -72,20 +71,19 @@ public final class AdminAid extends JavaPlugin {
 		File userDataDir = new File(getDataFolder() + "/userdata/");
 		FileUtilities.createNewDir(userDataDir);
 		
-//		for(String filename : userDataDir.list()) {
-//			System.out.println(filename);
-//			System.out.println(FileUtilities.removeFileExtension(filename));
-//		}
-		
-		this.getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
-			public void run() {
-				try {
-					convertFilesToUUID();
-				} catch (Exception e) {
-					e.printStackTrace();
+		if(getConfig().getBoolean("MigrateUserData") == true) {
+			this.getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+				public void run() {
+					try {
+						convertFilesToUUID();
+						getConfig().set("MigrateUserData", false);
+						saveConfig();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		});
+			});
+		}
 							
 		new AdminaidCommand(this);
 		new BanCommand(this);
@@ -118,50 +116,40 @@ public final class AdminAid extends JavaPlugin {
 		staffChat = null;
 		frozenPlayers = null;
 		onTime = null;
-		plugin = null;
 	}
 	
 	private void convertFilesToUUID() throws Exception {
+		getLogger().info("Migrating user data from player names to UUIDs");
 		
 		File dir = new File(this.getDataFolder() + "/userdata/");
-		File[] children = dir.listFiles(); //does return null if not a directory, but can probably ignore this
+		File[] children = dir.listFiles();
 		List<String> names = new ArrayList<String>();
-		
-		//TODO:
-		//if(someConfig.get(someBoolean) == false) return; 
-		
-		int i = 1;
+				
 		List<File> toConvert = new ArrayList<File>();
 		for(File f : children) {
 			String n = FileUtilities.removeFileExtension(f.getName());
 			if(!isUUID(n)) {
 				names.add(n);
 				toConvert.add(f);
-				System.out.println(i);
-				++i;
 			}
 		}
-		if(names.isEmpty()) return;		
 		
-		Map<String, UUID> map = new UUIDFetcher(names).call(); //probably do this (or even whole method) as async task
-		//System.out.println(map.size());
+		getLogger().info("There are " + toConvert.size() + " files to migrate");
 		
-		//int i = 0;
-		for(File f1 : toConvert) {
-			String name = FileUtilities.removeFileExtension(f1.getName());
-			UUID uuid = map.get(name);
-			File f2 = new File(this.getDataFolder() + "/userdata/" + uuid + ".yml");
-			//if(f2.exists()) {
-				//System.out.println(name + ": " + uuid);
-				//++i;
-			//}
-			f1.renameTo(f2);
-			YamlConfiguration userFile = YamlConfiguration.loadConfiguration(f2);
-			userFile.set("Name", name);
-			FileUtilities.saveYamlFile(userFile, f2);
+		if(!names.isEmpty()) {
+			Map<String, UUID> map = new UUIDFetcher(names).call();
+			
+			for(File f1 : toConvert) {
+				String name = FileUtilities.removeFileExtension(f1.getName());
+				UUID uuid = map.get(name);
+				File f2 = new File(this.getDataFolder() + "/userdata/" + uuid + ".yml");
+				f1.renameTo(f2);
+				YamlConfiguration userFile = YamlConfiguration.loadConfiguration(f2);
+				userFile.set("Name", name);
+				FileUtilities.saveYamlFile(userFile, f2);
+			}
 		}
-		//System.out.println(i);
-		System.out.println("Done");
+		getLogger().info("Migration of user data is now complete");
 	}
 	
 	private static boolean isUUID(String str) {
@@ -172,10 +160,6 @@ public final class AdminAid extends JavaPlugin {
 			return false;
 		}
 		return true;
-	}
-	
-	public static AdminAid getPlugin() {
-		return plugin;
 	}
 	
 	public static Plugin getOnTime() {
