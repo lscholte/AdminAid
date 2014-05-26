@@ -13,24 +13,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import ca.uvic.lscholte.AdminAid;
-import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
+import ca.uvic.lscholte.utilities.MiscUtilities;
 
 public class CommandListener implements Listener {
 	
 	private AdminAid plugin;
-	private MiscUtilities misc;
 	
-	public CommandListener(AdminAid instance) {
-		plugin = instance;
+	public CommandListener(AdminAid plugin) {
+		this.plugin = plugin;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		
-		misc = new MiscUtilities(plugin);
-		
+		//TODO: Implement this using ConfigConstants
 		List<String> commands = plugin.getConfig().getStringList("BlockedCommandsWhenMuted");
 		List<String> blockedCommands = new ArrayList<String>();
 		for(String s : commands) {
@@ -48,12 +45,12 @@ public class CommandListener implements Listener {
 			//YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
 			YamlConfiguration config = FileUtilities.loadYamlConfiguration(plugin, player.getUniqueId());
 			
-			if(misc.isPermaMuted(player)) {
+			if(MiscUtilities.isPermaMuted(plugin, player)) {
 				event.setCancelled(true);
 				String defaultMessage = "permanently muted";
 				player.sendMessage(ChatColor.RED + "You are " + config.getString("PermaMuteReason", defaultMessage));
 			}
-			else if(misc.isTempMuted(player)) {
+			else if(MiscUtilities.isTempMuted(plugin, player)) {
 				String defaultMessage = "temporarily muted";
 				if(System.currentTimeMillis()/1000 >= config.getDouble("TempMuteEnd")) {
 					config.set("TempMuted", null);

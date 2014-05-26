@@ -18,24 +18,20 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import ca.uvic.lscholte.AdminAid;
 import ca.uvic.lscholte.LoginRunnables;
-import ca.uvic.lscholte.MiscUtilities;
 import ca.uvic.lscholte.utilities.FileUtilities;
+import ca.uvic.lscholte.utilities.MiscUtilities;
 
 public class PlayerListener implements Listener {
 	
 	private AdminAid plugin;
-	private MiscUtilities misc;
 	
-	public PlayerListener(AdminAid instance) {
-		plugin = instance;
+	public PlayerListener(AdminAid plugin) {
+		this.plugin = plugin;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 			
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		
-		misc = new MiscUtilities(plugin);
-
 		Player player = event.getPlayer();
 		//File file = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase() + ".yml");
 		//YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
@@ -45,7 +41,7 @@ public class PlayerListener implements Listener {
 		String ipAddress = player.getAddress().getAddress().getHostAddress();
 		
 		List<Runnable> runnables = new ArrayList<Runnable>();
-		runnables.add(new LoginRunnables.LoginMessagesRunnable(player));
+		runnables.add(new LoginRunnables.LoginMessagesRunnable(plugin, player));
 		runnables.add(new LoginRunnables.MailRunnable(plugin, player));
 		
 		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new LoginRunnables.UpdaterRunnable(plugin, player));
@@ -69,10 +65,7 @@ public class PlayerListener implements Listener {
 	}
 	
 	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event) {
-		
-		misc = new MiscUtilities(plugin);
-		
+	public void onPlayerQuit(PlayerQuitEvent event) {		
 		Player player = event.getPlayer();
 		//File file = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase() + ".yml");
 		//YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
@@ -112,22 +105,19 @@ public class PlayerListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerLogin(PlayerLoginEvent event) {
-		
-		misc = new MiscUtilities(plugin);
-		
+	public void onPlayerLogin(PlayerLoginEvent event) {		
 		Player player = event.getPlayer();
 		//File file = new File(plugin.getDataFolder() + "/userdata/" + player.getName().toLowerCase() + ".yml");
 		//YamlConfiguration userFile = YamlConfiguration.loadConfiguration(file);
 		YamlConfiguration config = FileUtilities.loadYamlConfiguration(plugin, player.getUniqueId());
 		
 		/* Checks if player is banned or tempbanned */
-		if(misc.isPermaBanned(player)) {
+		if(MiscUtilities.isPermaBanned(plugin, player)) {
 			event.setResult(Result.KICK_BANNED);
 			String defaultMessage = "permanently banned from this server";
 			event.setKickMessage("You are " + config.getString("PermaBanReason", defaultMessage));
 		}
-		else if(misc.isTempBanned(player)) {
+		else if(MiscUtilities.isTempBanned(plugin, player)) {
 			String defaultMessage = "temporarily banned from this server";
 			if(System.currentTimeMillis()/1000 >= config.getDouble("TempBanEnd")) {
 				Bukkit.getBanList(Type.NAME).pardon(player.getName());
